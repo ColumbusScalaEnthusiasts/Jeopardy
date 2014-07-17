@@ -1,0 +1,28 @@
+{
+  "name": "Jeopardy",
+  "version": "0.0.1",
+  "description": "This Is Jeopspardy!",
+  "main": "karma.conf.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "karma": "^0.12.17",
+    "karma-jasmine": "^0.1.5",
+    "karma-ember-preprocessor": "^1.5.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "karma start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ColumbusScalaEnthusiasts/Jeopardy.git"
+  },
+  "author": "Columbus Scala Enthusiasts",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ColumbusScalaEnthusiasts/Jeopardy/issues"
+  },
+  "homepage": "https://github.com/ColumbusScalaEnthusiasts/Jeopardy"
+}

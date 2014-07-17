@@ -16,3 +16,5 @@ dist
 /bin/
 /.tmpBin/
 /.cache
+*.swp
+/node_modules
