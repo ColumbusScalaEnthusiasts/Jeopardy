@@ -22,11 +22,10 @@ class JasmineTest extends FunSpec with Firefox {
       }
       
       it ("the tests should exist and all pass") {
-        if (specs == 0) {
-          fail ("No Jasmine tests ran")
-        }
-        if (failures > 0) {
-          fail (s"${failures} Jasmine test${if (failures > 1) "s" else ""} failed")
+        (specs, failures) match {
+          case (0, _) => fail ("No Jasmine tests ran")
+          case (_, 0) => // success!
+          case (_, f) => fail (s"${f} Jasmine test${if (f > 1) "s" else ""} failed")
         }
       }    
     }
@@ -66,8 +65,8 @@ class JasmineTest extends FunSpec with Firefox {
     val passTexts = xpathQuery ("""//span[@class="bar passed"]""")
     val failTexts = xpathQuery ("""//span[@class="bar failed"]""")
     (passTexts, failTexts) match {
-      case (Nil, x :: xs) => x
-      case (x :: xs, Nil) => x
+      case (Nil, x :: _) => x
+      case (x :: _, Nil) => x
       case _ => fail ("XPath search for summary message failed"); ""
     }
   }
