@@ -9,7 +9,7 @@ import java.io.File
 import org.scalatest.selenium.Firefox
 
 @RunWith (classOf[JUnitRunner])
-class JasmineTest extends FunSpec with GhostDriver {
+class JasmineTest extends FunSpec with Firefox {
   try {
     describe ("When SpecRunner.html is loaded") {
       val fileUrl = makeFileUrl
