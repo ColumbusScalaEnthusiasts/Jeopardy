@@ -18,3 +18,4 @@ dist
 /.cache
 *.swp
 /node_modules
+phantomjsdriver.log
