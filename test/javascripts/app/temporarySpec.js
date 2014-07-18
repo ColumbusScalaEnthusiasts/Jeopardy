@@ -21,4 +21,10 @@ describe ("A Demonstrator", function () {
 			expect (result).toBe ("firstsecond");
 		});
 	});
+	
+	describe ("A test that's destined to fail", function () {
+		it ("does so", function () {
+			expect (true).toBe (false);
+		});
+	});
 });
