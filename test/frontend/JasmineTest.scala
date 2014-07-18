@@ -7,7 +7,6 @@ import org.scalatest.selenium.WebBrowser
 import org.scalatest.selenium.HtmlUnit
 import java.io.File
 import org.scalatest.selenium.Firefox
-import org.openqa.selenium.WebDriver
 
 @RunWith (classOf[JUnitRunner])
 class JasmineTest extends FunSpec with Firefox {
@@ -20,14 +19,14 @@ class JasmineTest extends FunSpec with Firefox {
         val (specs, failures) = parseMessage (message)
         (specs, failures)
       }
-      
+
       it ("the tests should exist and all pass") {
         (specs, failures) match {
           case (0, _) => fail ("No Jasmine tests ran")
           case (_, 0) => // success!
           case (_, f) => fail (s"${f} Jasmine test${if (f > 1) "s" else ""} failed")
         }
-      }    
+      }
     }
   }
   finally {
@@ -50,7 +49,7 @@ class JasmineTest extends FunSpec with Firefox {
     }
     throw lastException
   }
-  
+
   def makeFileUrl: String = {
     val currentDir = new File (".")
     return s"file:${currentDir.getAbsolutePath()}/test/javascripts/SpecRunner.html"
@@ -60,7 +59,7 @@ class JasmineTest extends FunSpec with Firefox {
     val elements = findAll (xpath (query))
     elements.map {_.text}.toList
   }
-  
+
   def scrapeMessage: String = {
     val passTexts = xpathQuery ("""//span[@class="bar passed"]""")
     val failTexts = xpathQuery ("""//span[@class="bar failed"]""")
