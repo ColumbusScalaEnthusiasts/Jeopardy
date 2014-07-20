@@ -22,3 +22,9 @@ describe ("A Demonstrator", function () {
 		});
 	});
 });
+
+xdescribe ("A test that's designed to fail", function () {
+	it ("does so", function () {
+		expect (true).toBe (false);
+	});
+});
