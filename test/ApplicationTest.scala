@@ -1,9 +1,11 @@
+import org.scalatest.DoNotDiscover
 import play.api.test._
 import play.api.test.Helpers._
 import org.scalatest.path.FunSpec
 import org.scalatest.junit.JUnitRunner
 import org.junit.runner.RunWith
 
+@DoNotDiscover
 @RunWith(classOf[JUnitRunner])
 class ApplicationTest extends FunSpec {
 

@@ -1,5 +1,6 @@
 package frontend
 
+import org.scalatest.DoNotDiscover
 import org.scalatest.path.FunSpec
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -8,6 +9,7 @@ import org.scalatest.selenium.HtmlUnit
 import java.io.File
 import org.scalatest.selenium.Firefox
 
+@DoNotDiscover
 @RunWith (classOf[JUnitRunner])
 class JasmineTest extends FunSpec with HtmlUnit {
 

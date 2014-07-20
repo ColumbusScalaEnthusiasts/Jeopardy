@@ -3,9 +3,11 @@ package utils
 import actors.StreamMergingActor.OrientationChangeEvent
 import actors.StreamMergingActor.OrientationChangeData
 import org.junit.runner.RunWith
+import org.scalatest.DoNotDiscover
 import org.scalatest.path.FunSpec
 import org.scalatest.junit.JUnitRunner
 
+@DoNotDiscover
 @RunWith(classOf[JUnitRunner])
 class UtilsUnitTest extends FunSpec {
   

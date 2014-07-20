@@ -19,3 +19,4 @@ dist
 *.swp
 /node_modules
 phantomjsdriver.log
+.DS_Store
