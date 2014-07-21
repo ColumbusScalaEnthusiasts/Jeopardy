@@ -1,3 +1,4 @@
+.metadata/
 /**/logs
 /**/target
 /**/tmp
@@ -18,3 +19,4 @@
 /**/node_modules
 /Jeopardy/phantomjsdriver.log
 .DS_Store
+/bin/
