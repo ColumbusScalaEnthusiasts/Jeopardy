@@ -13,28 +13,35 @@ import org.scalatest.path.FunSpec
 import org.openqa.selenium.ie.InternetExplorerDriver
 
 trait JeopardyFunctional {
-  private var _driver: WebDriver = null  
-  implicit protected def driver = _driver
+  private var _context: ContextPackage = null
+  implicit protected def context = _context
   
   def functional (body: (() => Unit)) {
-    _driver = makeDriver ()
-    _driver.manage ().timeouts ().implicitlyWait (60, TimeUnit.SECONDS);
+    _context = makeAnotherContext ()
     try {
       body ()
     }
     finally {
-      _driver.close ()
+      _context.close ()
     }
   }
   
+  def makeAnotherContext () = ContextPackage (makeDriver (), getBaseUrl ())
+  
   private def makeDriver (): WebDriver = {
     val driverType = System.getProperty ("webDriverType", "FIREFOX")
-    driverType.charAt (0).toUpper match {
+    val driver = driverType.charAt (0).toUpper match {
       case 'F' => new FirefoxDriver ()
       case 'C' => new ChromeDriver ()
       case 'H' => new HtmlUnitDriver ()
       case 'I' => new InternetExplorerDriver ()
       case _ => throw new IllegalArgumentException (s"Unknown webDriverType: ${driverType}")
     }
+    driver.manage ().timeouts ().implicitlyWait (60, TimeUnit.SECONDS);
+    driver
+  }
+  
+  private def getBaseUrl (): String = {
+    System.getProperty ("baseUrl", "http://localhost:9000")
   }
 }

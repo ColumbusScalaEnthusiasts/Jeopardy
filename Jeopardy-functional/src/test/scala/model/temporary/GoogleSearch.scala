@@ -4,8 +4,9 @@ import java.net.URI
 import pages.Page
 import pages.temporary.GooglePage
 import org.openqa.selenium.WebDriver
+import specs.ContextPackage
 
-class GoogleSearch (implicit driver: WebDriver) {
+class GoogleSearch (implicit context: ContextPackage) {
   
   case class GoogleSearchResult (
     linkName: String,
