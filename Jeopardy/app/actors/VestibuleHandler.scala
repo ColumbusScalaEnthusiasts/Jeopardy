@@ -32,10 +32,14 @@ class VestibuleHandler extends Actor {
   
   private def handleSignIn (msg: SignIn) {
     players = PlayerRecord (nextId, msg.name, sender) :: players
+    sendPlayerLists ()
+    sender ! SignedIn (nextId)
+    nextId = nextId + 1
+  }
+  
+  private def sendPlayerLists () {
     players.foreach {player =>
       player.listener ! PlayerList (players.map {p => PlayerInfo (p.id, p.name)})
     }
-    sender ! SignedIn (nextId)
-    nextId = nextId + 1
-  }  
+  }
 }

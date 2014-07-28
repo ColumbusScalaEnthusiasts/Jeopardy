@@ -122,6 +122,32 @@ describe ("A Vestibule Controller, initialized with mocks", function () {
 			expect (subject.playerId).toBe (null);
 		});
 	});
+	
+	describe ("when signaled ready", function () {
+		
+		beforeEach (function () {
+			subject.signalReady ();
+		});
+		
+		it ("sends a ready message on the websocket", function () {
+			expect (websocket.send).toHaveBeenCalledWith ("ready", {});
+		});
+		
+		it ("orders the START panel", function () {
+			expect (view.displayControls).toHaveBeenCalledWith ("START");
+		});
+	});
+	
+	describe ("when directed to start", function () {
+		
+		beforeEach (function () {
+			subject.startGame ();
+		});
+		
+		it ("sends a start message on the websocket", function () {
+			expect (websocket.send).toHaveBeenCalledWith ("start", {});
+		});
+	});
 });
 
 describe ("A Vestibule View, initialized", function () {
@@ -134,15 +160,14 @@ describe ("A Vestibule View, initialized", function () {
 			'	<div id="vestibule-page-content" style="display: none;">' +
 			'		<div id="player-list"></div>' +
 		 	'		<div id="sign-in-panel" style="display: none;">' +
-			'		    <label for="player-name">Your Name:</label>' +
 			'		    <input type="text" id="player-name"/>' +
-			'		    <button id="sign-in-form">Sign In</button>' +
+			'		    <button id="sign-in-button">Sign In</button>' +
 		 	'		</div>' +
 		 	'		<div id="ready-panel" style="display: none;">' +
 		 	'			<button id="ready-button">Ready</button>' +
 		 	'		</div>' +
 		 	'		<div id="start-panel" style="display: none;">' +
-		 	'			<button id="ready-button">START</button>' +
+		 	'			<button id="start-button">START</button>' +
 		 	'		</div>' +
 			'	</div>' +
 			'</div>'
@@ -170,7 +195,7 @@ describe ("A Vestibule View, initialized", function () {
 	});
 	
 	it ("leaves the sign-in pane and button panels all invisible", function () {
-		expect ($('#sign-in-pane').is (':visible')).toBe (false);
+		expect ($('#sign-in-panel').is (':visible')).toBe (false);
 		expect ($('#ready-panel').is (':visible')).toBe (false);
 		expect ($('#start-panel').is (':visible')).toBe (false);
 	});
@@ -214,5 +239,48 @@ describe ("A Vestibule View, initialized", function () {
 		
 		checkNameDisplay ("Jeffy", 12345);
 		checkNameDisplay ("Chubs", 23456);
+	});
+	
+	describe ("when all controls are made visible", function () {
+		
+		beforeEach (function () {
+			$('#sign-in-panel').show ();
+			$('#ready-panel').show ();
+			$('#start-panel').show ();
+		});
+		
+		describe ("and the sign-in panel is filled out and submitted", function () {
+			
+			beforeEach (function () {
+				$('#player-name').val ("Chip");
+				$('#sign-in-button').click ();
+			});
+			
+			it ("the controller is informed", function () {
+				expect (controller.signIn).toHaveBeenCalledWith ("Chip");
+			});
+		});
+		
+		describe ("and the Ready button is clicked", function () {
+			
+			beforeEach (function () {
+				$('#ready-button').click ();
+			});
+			
+			it ("the controller is informed", function () {
+				expect (controller.signalReady).toHaveBeenCalled ();
+			});
+		});
+		
+		describe ("and the START button is clicked", function () {
+			
+			beforeEach (function () {
+				$('#start-button').click ();
+			});
+			
+			it ("the controller is informed", function () {
+				expect (controller.startGame).toHaveBeenCalled ();
+			});
+		});
 	});
 });

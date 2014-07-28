@@ -21,11 +21,8 @@ Jeopardy.Vestibule.Controller = (function () {
 		return location.replace ('http', 'ws') + "/wsinit"
 	};
 	
-	self.playerId = null;
-	
-	self.initialize = function (location, viewParam) {
-		self.playerId = null;
-		websocket = $.websocket (
+	var makeWebSocket = function (location) {
+		return $.websocket (
 			convertToWebSocketUrl (location + ""), {
 			open: function () {view.displayControls ("SIGNIN");},
 			close: function () {view.closed ();},
@@ -34,12 +31,28 @@ Jeopardy.Vestibule.Controller = (function () {
 				signedIn: function (data) {handleSignedIn (data);}
 			}
 		});
+	}
+	
+	self.playerId = null;
+	
+	self.initialize = function (location, viewParam) {
+		self.playerId = null;
+		websocket = makeWebSocket (location);
 		view = viewParam;
 		view.initialize (self);
 	};
 	
 	self.signIn = function (name) {
 		websocket.send ("signIn", {name: name});
+	};
+	
+	self.signalReady = function () {
+		websocket.send ("ready", {});
+		view.displayControls ("START");
+	};
+	
+	self.startGame = function () {
+		websocket.send ("start", {});
 	};
 	
 	return self;
@@ -51,10 +64,17 @@ Jeopardy.Vestibule.View = (function () {
 	
 	var panels = {"SIGNIN": "sign-in-panel", "READY": "ready-panel", "START": "start-panel"};
 	
+	var wireInControls = function () {
+		$('#sign-in-button').click (function () {self.controller.signIn ($('#player-name').val ());});
+		$('#ready-button').click (self.controller.signalReady);
+		$('#start-button').click (self.controller.startGame);
+	}
+	
 	self.controller = null;
 	
 	self.initialize = function (controller) {
 		self.controller = controller;
+		wireInControls ();
 		$('#vestibule-page-content').show ();
 	};
 	
