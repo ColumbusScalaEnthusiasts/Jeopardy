@@ -20,6 +20,7 @@ class ApplicationTest extends FunSpec {
       }
       
       describe ("when asked for the index page") {
+        pending
         val result = route (FakeRequest (GET, "/")).get
         
         it ("returns the expected data") {
