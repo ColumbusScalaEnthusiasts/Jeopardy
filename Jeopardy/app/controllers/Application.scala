@@ -19,10 +19,7 @@ object Application extends Controller with IpAddress {
   implicit val timeout = Timeout(2 second)
   
   def index = Action {
-    println(getIpAddresses())
-    println(Runtime.getRuntime().availableProcessors())
-
-    Ok(views.html.index(getIpAddresses()))
+    Redirect ("/vestibule")
   }
 
   def mobileWebSocket = WebSocket.acceptWithActor[OrientationChangeEvent, JsValue] { request => out =>

@@ -4,6 +4,8 @@
 
 # Home page
 GET     /                                controllers.Application.index
+GET		/vestibule						 controllers.Vestibule.index
+GET     /vestibule/wsinit				 controllers.Vestibule.wsinit
 GET     /mobileWebSocket                 controllers.Application.mobileWebSocket
 GET     /dashboardWebSocket              controllers.Application.dashboardWebSocket
 

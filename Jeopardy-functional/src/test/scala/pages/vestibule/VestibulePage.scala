@@ -24,7 +24,7 @@ class VestibulePage extends Page {
   }
   
   def playersPresent: List[Player] = {
-    val playerInfo = driver.findElements (By.xpath ("""//li[@class="player-info"]""")).asScala
+    val playerInfo = driver.findElements (By.xpath ("""//tr[@class="player-info"]""")).asScala
     playerInfo.map {info =>
       val regMatch = """player-info-(\d+)$""".r.findFirstMatchIn(info.getAttribute ("id")).get
       val id = regMatch.group (1);
