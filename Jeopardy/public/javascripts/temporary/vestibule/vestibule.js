@@ -40,6 +40,7 @@ Jeopardy.Vestibule.Controller = (function () {
 		websocket = makeWebSocket (location);
 		view = viewParam;
 		view.initialize (self);
+		view.displayControls ("SIGNIN");
 	};
 	
 	self.signIn = function (name) {

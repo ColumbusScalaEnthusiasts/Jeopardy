@@ -22,6 +22,10 @@ describe ("A Vestibule Controller, initialized with mocks", function () {
 		expect (view.initialize).toHaveBeenCalledWith (subject);
 	});
 	
+	it ("orders the display of the sign-in panel", function () {
+		expect (view.displayControls).toHaveBeenCalledWith ("SIGNIN");
+	});
+	
 	it ("calls $.websocket", function () {
 		expect ($.websocket).toHaveBeenCalled ();
 	});

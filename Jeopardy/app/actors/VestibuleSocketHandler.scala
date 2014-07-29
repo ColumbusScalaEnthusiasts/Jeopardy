@@ -24,7 +24,7 @@ class VestibuleSocketHandler (vestibuleHandler: ActorRef, out: ActorRef) extends
   }
   
   private def handleSignedIn (msg: SignedIn) {
-    sender ! new JsObject (List (
+    out ! new JsObject (List (
       ("type", new JsString ("signedIn")),
       ("data", new JsObject (List (
         ("id", new JsNumber (msg.id))
