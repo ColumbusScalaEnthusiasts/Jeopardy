@@ -15,37 +15,33 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      //'public/javascripts/jquery*.js',
-      //'public/javascripts/handlebars-*.js',
-      //'public/javascripts/ember.js',
-      //'public/javascripts/ember-data.js',
-      //'public/javascripts/*.js',
-      'public/javascripts/app/temporary.js',
-      'test/javascripts/app/*Spec.js',
-      //'app/assets/templates/*.handlebars',
+      'public/javascripts/jquery*.js',
+      'public/javascripts/**/*.js',
+      'test/javascripts/**/*Spec.js',
     ],
 
 
     // list of files to exclude
     exclude: [
+      'public/javascripts/app/**/*.js',
+      'public/javascripts/ember*'
     ],
 
     plugins: [
         'karma-jasmine',
-        'karma-ember-preprocessor'
+        'karma-phantomjs-launcher',
+        'karma-junit-reporter'
     ],
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-    preprocessors: {
-        "**/*.handlebars" : "ember"
-    },
+    preprocessors: {},
 
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress'],
+    reporters: ['progress', 'junit'],
 
 
     // web server port
@@ -67,7 +63,7 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: [],
+    browsers: ['PhantomJS'],
 
 
     // Continuous Integration mode
