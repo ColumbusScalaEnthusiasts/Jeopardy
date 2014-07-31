@@ -7,7 +7,7 @@ describe ("A Vestibule Controller, initialized with mocks", function () {
 	beforeEach (function () {
 		subject = Jeopardy.Vestibule.Controller;
 		websocket = {send: jasmine.createSpy ()};
-		spyOn ($, "websocket").andReturn (websocket);
+		spyOn (Jeopardy.Utils, "websocket").andReturn (websocket);
 		view = {
 			initialize: jasmine.createSpy (),
 			displayControls: jasmine.createSpy (),
@@ -26,8 +26,8 @@ describe ("A Vestibule Controller, initialized with mocks", function () {
 		expect (view.displayControls).toHaveBeenCalledWith ("SIGNIN");
 	});
 	
-	it ("calls $.websocket", function () {
-		expect ($.websocket).toHaveBeenCalled ();
+	it ("calls Jeopardy.Utils.websocket", function () {
+		expect (Jeopardy.Utils.websocket).toHaveBeenCalled ();
 	});
 	
 	it ("is not signed in", function () {
@@ -42,7 +42,7 @@ describe ("A Vestibule Controller, initialized with mocks", function () {
 		var signedIn = null;
 		
 		beforeEach (function () {
-			var call = $.websocket.calls[0];
+			var call = Jeopardy.Utils.websocket.calls[0];
 			url = call.args[0];
 			open = call.args[1].open;
 			close = call.args[1].close;

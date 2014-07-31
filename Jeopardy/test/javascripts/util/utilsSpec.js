@@ -1,33 +1,95 @@
-describe ("$.toJSON, when called", function () {
-	var result = null;
+describe ("Jeopardy.Utils.websocket, when its environment is mocked out", function () {
+	var websocket = null;
+	var mockWebSocket = null;
 	
 	beforeEach (function () {
-		spyOn (JSON, "stringify").andReturn ("output");
-		result = $.toJSON ("input");
+		mockWebSocket = {send: jasmine.createSpy ()};
+		spyOn (Jeopardy.Utils, "makeWebSocket").andReturn (mockWebSocket);
 	});
 	
-	it ("delegates to JSON.stringify", function () {
-		expect (JSON.stringify).toHaveBeenCalledWith ("input");
+	describe ("and it is called without an events parameter", function () {
+		
+		beforeEach (function () {
+			websocket = Jeopardy.Utils.websocket ("Throckmorton", {
+				open: "open handler",
+				close: "close handler",
+			});
+		});
+		
+		it ("applies the supplied open handler to the underlying WebSocket", function () {
+			expect (mockWebSocket.onopen).toBe ("open handler");
+		});
+		
+		it ("applies the supplied close handler to the underlying WebSocket", function () {
+			expect (mockWebSocket.onclose).toBe ("close handler");
+		});
+		
+		it ("leaves the underlying WebSocket's onmessage handler undefined", function () {
+			expect (mockWebSocket.onmessage).toBeUndefined ();
+		});
+		
+		describe ("and used to send a message", function () {
+			
+			beforeEach (function () {
+				websocket.send ("opcode", {name: "value"});
+			});
+			
+			it ("delegates properly to the underlying WebSocket", function () {
+				expect (mockWebSocket.send).toHaveBeenCalledWith (JSON.stringify ({type: "opcode", data: {name: "value"}}))
+			});
+		});
 	});
 	
-	it ("returns the result from JSON.stringify", function () {
-		expect (result).toBe ("output");
-	})
-});
-
-describe ("$.evalJSON, when called", function () {
-	var result = null;
-	
-	beforeEach (function () {
-		spyOn (JSON, "parse").andReturn ("output");
-		result = $.evalJSON ("input");
+	describe ("and it is called with just an events parameter", function () {
+		var output = null;
+		
+		beforeEach (function (){
+			websocket = Jeopardy.Utils.websocket ("Throckmorton", {events: {
+				birthday: function (data) {output = data.message},
+				christmas: function (data) {output = data.message}
+			}});
+		});
+		
+		it ("leaves the underlying WebSocket's open handler undefined", function () {
+			expect (mockWebSocket.onopen).toBeUndefined ();
+		});
+		
+		it ("leaves the underlying WebSocket's close handler undefined", function () {
+			expect (mockWebSocket.onclose).toBeUndefined ();
+		});
+		
+		describe ("and the underlying WebSocket receives one kind of expected message", function () {
+			
+			beforeEach (function () {
+				mockWebSocket.onmessage ({data: JSON.stringify ({type: "birthday", data: {message: "Happy birthday to me!"}})});
+			});
+			
+			it ("its event handler operates as expected", function () {
+				expect (output).toBe ("Happy birthday to me!");
+			});
+		});
+		
+		describe ("and the underlying WebSocket receives another kind of expected message", function () {
+			
+			beforeEach (function () {
+				mockWebSocket.onmessage ({data: JSON.stringify ({type: "christmas", data: {message: "Merry Christmas!"}})});
+			});
+			
+			it ("its event handler operates as expected", function () {
+				expect (output).toBe ("Merry Christmas!");
+			});
+		});
+		
+		describe ("and the underlying WebSocket receives an unexpected message", function () {
+			
+			beforeEach (function () {
+				spyOn (window.console, "log");
+				mockWebSocket.onmessage ({data: "Nobody expects the Spanish Inquisition!"});
+			});
+			
+			it ("ignores the message and logs about it", function () {
+				expect (window.console.log).toHaveBeenCalledWith ('Discarding WebSocket message: "Nobody expects the Spanish Inquisition!"');
+			});
+		});
 	});
-	
-	it ("delegates to JSON.parse", function () {
-		expect (JSON.parse).toHaveBeenCalledWith ("input");
-	});
-	
-	it ("returns the result from JSON.parse", function () {
-		expect (result).toBe ("output");
-	})
 });

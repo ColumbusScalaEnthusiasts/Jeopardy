@@ -1,4 +1,4 @@
-var Jeopardy = Jeopardy ? Jeopardy : {}
+var Jeopardy = Jeopardy ? Jeopardy : {};
 
 Jeopardy.Vestibule = {}
 
@@ -22,7 +22,7 @@ Jeopardy.Vestibule.Controller = (function () {
 	};
 	
 	var makeWebSocket = function (location) {
-		return $.websocket (
+		return Jeopardy.Utils.websocket (
 			convertToWebSocketUrl (location + ""), {
 			open: function () {view.displayControls ("SIGNIN");},
 			close: function () {view.closed ();},
