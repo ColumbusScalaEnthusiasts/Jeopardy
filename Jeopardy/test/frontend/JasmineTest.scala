@@ -8,17 +8,24 @@ import org.scalatest.selenium.WebBrowser
 import org.scalatest.selenium.HtmlUnit
 import java.io.File
 import org.scalatest.selenium.Firefox
+import org.openqa.selenium.firefox.FirefoxDriver
+import org.openqa.selenium.WebDriver
+import org.openqa.selenium.By
+import scala.collection.JavaConverters._
+import org.openqa.selenium.phantomjs.PhantomJSDriver
+import org.openqa.selenium.htmlunit.HtmlUnitDriver
 
 @DoNotDiscover
 @RunWith (classOf[JUnitRunner])
-class JasmineTest extends FunSpec with HtmlUnit {
+class JasmineTest extends FunSpec {
 
-  private val scraper = new Jasmine131Scraper ();
+  private val driver = new PhantomJSDriver ();
+  private val scraper = new Jasmine131Scraper (driver);
   
   try {
     describe ("When SpecRunner.html is loaded") {
       val fileUrl = makeFileUrl
-      go to (fileUrl)
+      driver.get (fileUrl)
       val (specs, failures) = waitForResult (10000L) {() =>
         scraper.scrapeResult()
       }
@@ -33,7 +40,7 @@ class JasmineTest extends FunSpec with HtmlUnit {
     }
   }
   finally {
-    quit ()
+    driver.close ()
   }
   
   def waitForResult[T] (timeout: Long) (attempt: (() => T)): T = {
@@ -58,16 +65,16 @@ class JasmineTest extends FunSpec with HtmlUnit {
     return s"file:${currentDir.getAbsolutePath()}/test/javascripts/SpecRunner.html"
   }
   
-  trait JasmineScraper {
+  abstract class JasmineScraper (driver: WebDriver) {
     def scrapeResult (): (Int, Int)
   
     protected def xpathQuery (query: String): List[String] = {
-      val elements = findAll (xpath (query))
-      elements.map {_.text}.toList
+      val elements = driver.findElements (By.xpath (query)).asScala.toList
+      elements.map {_.getText}
     }
   }
   
-  class Jasmine131Scraper extends JasmineScraper {
+  class Jasmine131Scraper (driver: WebDriver) extends JasmineScraper (driver) {
     override def scrapeResult (): (Int, Int) = {
       val failureCountsOpt = findFailureCounts ()
       val successCountsOpt = findSuccessCounts ()
@@ -117,7 +124,7 @@ class JasmineTest extends FunSpec with HtmlUnit {
     }
   }
   
-  class Jasmine200Scraper extends JasmineScraper {
+  class Jasmine200Scraper (driver: WebDriver) extends JasmineScraper (driver) {
     override def scrapeResult (): (Int, Int) = {
       val message = scrapeMessage
       val (specs, failures) = parseMessage (message)
