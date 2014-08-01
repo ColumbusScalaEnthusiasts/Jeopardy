@@ -16,7 +16,7 @@ import org.scalatest.concurrent.Eventually._
 
 @DoNotDiscover
 @RunWith(classOf[JUnitRunner])
-class JasmineTest extends FunSpec with GhostDriver {
+class JasmineTest extends FunSpec with Firefox {
 
   private val scraper = new Jasmine131Scraper(webDriver)
 
