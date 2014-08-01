@@ -79,6 +79,8 @@ Jeopardy.Vestibule.View = (function () {
 		$('#vestibule-page-content').show ();
 	};
 	
+	self.closed = function () {};
+	
 	self.displayControls = function (panelName) {
 		Object.keys (panels).forEach (function (key) {
 			var object = $('#' + panels[key]);

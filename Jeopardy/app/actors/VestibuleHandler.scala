@@ -12,9 +12,8 @@ object VestibuleHandler {
   }
 }
 
+case class NewConnection ()
 case class SignIn (name: String)
-case class PlayerInfo (id: Long, name: String)
-case class PlayerList (players: List[PlayerInfo])
 
 case class PlayerRecord (
   val id: Long,
@@ -27,7 +26,12 @@ class VestibuleHandler extends Actor {
   private var players = List[PlayerRecord]()
   
   override def receive = {
+    case msg: NewConnection => handleNewConnection ()
     case msg: SignIn => handleSignIn (msg)
+  }
+  
+  private def handleNewConnection () {
+    sender ! makePlayerList
   }
   
   private def handleSignIn (msg: SignIn) {
@@ -39,7 +43,9 @@ class VestibuleHandler extends Actor {
   
   private def sendPlayerLists () {
     players.foreach {player =>
-      player.listener ! PlayerList (players.map {p => PlayerInfo (p.id, p.name)})
+      player.listener ! makePlayerList
     }
   }
+  
+  private def makePlayerList = PlayerList (players.map {p => PlayerInfo (p.id, p.name)}.reverse)
 }
