@@ -3,7 +3,7 @@ package frontend
 import org.openqa.selenium.phantomjs.PhantomJSDriver
 import org.scalatest.selenium.{WebBrowser, Driver}
 
-trait PhantomJS extends WebBrowser with Driver {
+trait GhostDriver extends WebBrowser with Driver {
   implicit val webDriver = new PhantomJSDriver()
 
   /**
@@ -15,4 +15,4 @@ trait PhantomJS extends WebBrowser with Driver {
 
 }
 
-object PhantomJS extends PhantomJS
+object GhostDriver extends GhostDriver

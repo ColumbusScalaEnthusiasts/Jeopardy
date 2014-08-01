@@ -12,12 +12,11 @@ import org.openqa.selenium.firefox.FirefoxDriver
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.By
 import scala.collection.JavaConverters._
-import org.openqa.selenium.phantomjs.PhantomJSDriver
 import org.scalatest.concurrent.Eventually._
 
 @DoNotDiscover
 @RunWith(classOf[JUnitRunner])
-class JasmineTest extends FunSpec with PhantomJS {
+class JasmineTest extends FunSpec with GhostDriver {
 
   private val scraper = new Jasmine131Scraper(webDriver)
 
