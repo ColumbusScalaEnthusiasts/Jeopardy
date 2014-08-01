@@ -19,7 +19,7 @@ import org.openqa.selenium.htmlunit.HtmlUnitDriver
 @RunWith (classOf[JUnitRunner])
 class JasmineTest extends FunSpec {
 
-  private val driver = new PhantomJSDriver ();
+  private val driver = new FirefoxDriver ();
   private val scraper = new Jasmine131Scraper (driver);
   
   try {
