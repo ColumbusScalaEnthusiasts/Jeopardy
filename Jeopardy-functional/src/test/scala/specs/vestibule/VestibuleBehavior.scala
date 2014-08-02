@@ -1,68 +1,78 @@
 package specs.vestibule
 
-import specs.JeopardyFunctional
-import org.scalatest.path.FunSpec
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.FeatureSpec
-import org.scalatest.GivenWhenThen
+import org.scalatest.DoNotDiscover
+import org.scalatest.FunSuite
 import model.vestibule.Vestibule
+import specs.JeopardyFunctional
+import org.scalatest.junit.JUnitRunner
 
+@DoNotDiscover
 @RunWith (classOf[JUnitRunner])
-class VestibuleBehavior extends FeatureSpec with GivenWhenThen with JeopardyFunctional {
-  functional {() =>
-    feature ("The Vestibule") {
+class VestibuleBehavior extends FunSuite with JeopardyFunctional {
     
-      scenario ("Player enters vestibule with nobody else around") {
-        Given ("the Vestibule")
-        val vestibule = new Vestibule
-        
-        When ("it is entered via the index page")
-        vestibule.enterViaIndex ()
-
-        Then ("there are no players present")
-        assert (vestibule.playersPresent === Nil)
-        
-        When ("the player identifies himself")
-        vestibule.signInPlayer ("Billy")
-        
-        Then ("he appears in the list")
-        val playersPresent = vestibule.playersPresent
-        val billy = playersPresent.head
-        assert (billy.name === "Billy")
-        assert (playersPresent.size === 1)
+      test ("Player enters vestibule with nobody else around") {
+        val ctx = makeAnotherContext ()
+        var vestibule: Vestibule = null
+        try {
+          vestibule = new Vestibule ()(ctx)
+          vestibule.enterViaIndex ()
+  
+          assert (vestibule.playersPresent === Nil)
+          
+          vestibule.signIn ("Billy")
+          
+          try {
+            val playersPresent = vestibule.playersPresent
+            val billy = playersPresent.head
+            assert (billy.name === "Billy")
+            assert (playersPresent.size === 1)
+          }
+          finally {
+            vestibule.signOut ()
+          }
+        }
+        finally {
+          ctx.close ()
+        }
       }
       
-      scenario ("Player enters vestibule second") {
-        Given ("the Vestibule already entered by a player")
+      test ("the Vestibule already entered by a player") {
+        val oneContext = makeAnotherContext ()
+        var oneVestibule: Vestibule = null
         val anotherContext = makeAnotherContext ()
+        var anotherVestibule: Vestibule = null
         try {
-          val anotherVestibule = new Vestibule ()(anotherContext)
+          anotherVestibule = new Vestibule ()(anotherContext)
           anotherVestibule.enterDirectly ()
-          anotherVestibule.signInPlayer ("Annie")
+          anotherVestibule.signIn ("Annie")
           
-          When ("our player enters later")
-          val vestibule = new Vestibule
-          vestibule.enterDirectly ()
-          vestibule.signInPlayer ("Billy")
-          
-          Then ("both players appear in the list for both players")
-          bothPlayersAppear (vestibule)
-          bothPlayersAppear (anotherVestibule)
+          try {
+            oneVestibule = new Vestibule ()(oneContext)
+            oneVestibule.enterDirectly ()
+            oneVestibule.signIn ("Billy")
+            
+            try {
+              playersAppear (List ("Annie", "Billy"), oneVestibule)
+              playersAppear (List ("Annie", "Billy"), anotherVestibule)
+            }
+            finally {
+              oneVestibule.signOut ()
+            }
+          }
+          finally {
+            anotherVestibule.signOut ()
+          }
         }
         finally {
           anotherContext.close ();
+          oneContext.close ();
         }
         
-        def bothPlayersAppear (vestibule: Vestibule) {
+        def playersAppear (expectedNames: List[String], vestibule: Vestibule) {
           val playersPresent = vestibule.playersPresent
-          val annie = playersPresent.head
-          assert (annie.name === "Annie")
-          val billy = playersPresent.tail.head
-          assert (billy.name === "Billy")
-          assert (playersPresent.size === 2)
+          val actualNames = playersPresent.map {_.name}
+          assert (actualNames === expectedNames)
         }
-      }
     }
-  }
 }

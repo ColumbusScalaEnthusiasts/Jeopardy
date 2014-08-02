@@ -6,7 +6,7 @@ import pages.vestibule.Player
 import pages.Page
 
 class Vestibule (implicit context: ContextPackage) {
-
+  
   def enterViaIndex () {
     Page (classOf[VestibulePage]).enterViaIndex ()
   }
@@ -15,10 +15,15 @@ class Vestibule (implicit context: ContextPackage) {
     Page (classOf[VestibulePage]).enterDirectly ()
   }
   
-  def signInPlayer (name: String) {
+  def signIn (name: String) {
     val page = Page (classOf[VestibulePage])
     page.setPlayerName (name)
     page.signIn ()
+  }
+  
+  def signOut () {
+    val page = Page (classOf[VestibulePage])
+    page.signOut ()
   }
   
   def playersPresent: List[Player] = {

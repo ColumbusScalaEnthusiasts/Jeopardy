@@ -37,7 +37,7 @@ trait JeopardyFunctional {
       case 'I' => new InternetExplorerDriver ()
       case _ => throw new IllegalArgumentException (s"Unknown webDriverType: ${driverType}")
     }
-    driver.manage ().timeouts ().implicitlyWait (60, TimeUnit.SECONDS);
+    driver.manage ().timeouts ().implicitlyWait (10, TimeUnit.SECONDS);
     driver
   }
   
