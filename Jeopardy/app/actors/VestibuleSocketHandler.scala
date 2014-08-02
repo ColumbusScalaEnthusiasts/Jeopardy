@@ -30,11 +30,16 @@ class VestibuleSocketHandler (vestibuleHandler: ActorRef, out: ActorRef) extends
   private def handleJsValue (msg: JsValue) {
     (msg \ "type").as[String] match {
       case "signIn" => handleSignIn (field (msg, "name"))
+      case "signOut" => handleSignOut ()
     }
   }
   
   private def handleSignIn (name: String) {
     vestibuleHandler ! SignIn (name)
+  }
+  
+  private def handleSignOut () {
+    vestibuleHandler ! SignOut ()
   }
   
   private def handleSignedIn (msg: SignedIn) {

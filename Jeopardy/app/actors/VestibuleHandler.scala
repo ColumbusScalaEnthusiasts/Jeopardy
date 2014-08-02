@@ -14,6 +14,7 @@ object VestibuleHandler {
 
 case class NewConnection ()
 case class SignIn (name: String)
+case class SignOut ()
 
 case class PlayerRecord (
   val id: Long,
@@ -28,6 +29,7 @@ class VestibuleHandler extends Actor {
   override def receive = {
     case msg: NewConnection => handleNewConnection ()
     case msg: SignIn => handleSignIn (msg)
+    case msg: SignOut => handleSignOut ()
   }
   
   private def handleNewConnection () {
@@ -39,6 +41,11 @@ class VestibuleHandler extends Actor {
     sendPlayerLists ()
     sender ! SignedIn (nextId)
     nextId = nextId + 1
+  }
+  
+  private def handleSignOut () {
+    players = players.filter {_.listener != sender}
+    sendPlayerLists ()
   }
   
   private def sendPlayerLists () {

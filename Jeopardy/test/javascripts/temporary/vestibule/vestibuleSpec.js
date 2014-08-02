@@ -152,6 +152,21 @@ describe ("A Vestibule Controller, initialized with mocks", function () {
 			expect (websocket.send).toHaveBeenCalledWith ("start", {});
 		});
 	});
+	
+	describe ("when signed out", function () {
+		
+		beforeEach (function () {
+			subject.signOut ();
+		});
+		
+		it ("sends a sign-out message on the websocket", function () {
+			expect (websocket.send).toHaveBeenCalledWith ("signOut", {});
+		});
+		
+		it ("orders the SIGNIN panel", function () {
+			expect (view.displayControls).toHaveBeenCalledWith ("SIGNIN");
+		});
+	});
 });
 
 describe ("A Vestibule View, initialized", function () {
@@ -169,9 +184,11 @@ describe ("A Vestibule View, initialized", function () {
 		 	'		</div>' +
 		 	'		<div id="ready-panel" style="display: none;">' +
 		 	'			<button id="ready-button">Ready</button>' +
+		 	'			<button id="sign-out-button-ready">Sign Out</button>' +
 		 	'		</div>' +
 		 	'		<div id="start-panel" style="display: none;">' +
 		 	'			<button id="start-button">START</button>' +
+		 	'			<button id="sign-out-button-start">Sign Out</button>' +
 		 	'		</div>' +
 			'	</div>' +
 			'</div>'
@@ -180,7 +197,8 @@ describe ("A Vestibule View, initialized", function () {
 		controller = {
 			signIn: jasmine.createSpy (),
 			signalReady: jasmine.createSpy (),
-			startGame: jasmine.createSpy ()
+			startGame: jasmine.createSpy (),
+			signOut: jasmine.createSpy ()
 		};
 		
 		subject.initialize (controller);
@@ -245,15 +263,17 @@ describe ("A Vestibule View, initialized", function () {
 		checkNameDisplay ("Chubs", 23456);
 	});
 	
-	describe ("when all controls are made visible", function () {
+	describe ("when the sign-in panel is made visible", function () {
 		
 		beforeEach (function () {
 			$('#sign-in-panel').show ();
-			$('#ready-panel').show ();
-			$('#start-panel').show ();
 		});
 		
-		describe ("and the sign-in panel is filled out and submitted", function () {
+		afterEach (function () {
+			$('#sign-in-panel').hide ();
+		});
+		
+		describe ("and is filled out and submitted", function () {
 			
 			beforeEach (function () {
 				$('#player-name').val ("Chip");
@@ -264,7 +284,18 @@ describe ("A Vestibule View, initialized", function () {
 				expect (controller.signIn).toHaveBeenCalledWith ("Chip");
 			});
 		});
+	});
+	
+	describe ("when the ready panel is made visible", function () {
 		
+		beforeEach (function () {
+			$('#ready-panel').show ();
+		});
+		
+		afterEach (function () {
+			$('#ready-panel').hide ();
+		});
+
 		describe ("and the Ready button is clicked", function () {
 			
 			beforeEach (function () {
@@ -276,6 +307,28 @@ describe ("A Vestibule View, initialized", function () {
 			});
 		});
 		
+		describe ("and the Sign Out button is clicked", function () {
+			
+			beforeEach (function () {
+				$('#sign-out-button-ready').click ();
+			});
+			
+			it ("the controller is informed", function () {
+				expect (controller.signOut).toHaveBeenCalled ();
+			});
+		})
+	});
+	
+	describe ("when the start panel is made visible", function () {
+		
+		beforeEach (function () {
+			$('#start-panel').show ();
+		});
+		
+		afterEach (function () {
+			$('#start-panel').hide ();
+		});
+
 		describe ("and the START button is clicked", function () {
 			
 			beforeEach (function () {
@@ -286,5 +339,16 @@ describe ("A Vestibule View, initialized", function () {
 				expect (controller.startGame).toHaveBeenCalled ();
 			});
 		});
+		
+		describe ("and the Sign Out button is clicked", function () {
+			
+			beforeEach (function () {
+				$('#sign-out-button-start').click ();
+			});
+			
+			it ("the controller is informed", function () {
+				expect (controller.signOut).toHaveBeenCalled ();
+			});
+		})
 	});
 });

@@ -65,6 +65,20 @@ class VestibuleHandlerTest extends FunSpec {
                   expectedPlayerList
               ))
             }
+          
+            socketHandler1.underlyingActor.erase ()
+            socketHandler2.underlyingActor.erase ()
+            
+            describe ("and the first socket handler signs out") {
+              socketHandler1.underlyingActor.relay (subject, SignOut ());
+              
+              it ("handlers get expected messages") {
+                assert (socketHandler1.underlyingActor.getRecording === Nil)
+                assert (socketHandler2.underlyingActor.getRecording === List (
+                    PlayerList (List (PlayerInfo (2, "Ursula")))
+                ))
+              }
+            }
           }
         }
       }

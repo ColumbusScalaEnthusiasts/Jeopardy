@@ -40,6 +40,21 @@ class VestibuleSocketHandlerTest extends FunSpec {
       }
     }
     
+    describe ("when sent a SignOut message from the front end") {
+      vestibuleHandler.underlyingActor.erase()
+      val json = Json.parse ("""
+{
+  "type": "signOut",
+  "data": {}
+}
+""")
+      subject ! json
+      
+      it ("relays the message to the VestibuleHandler") {
+        assert (vestibuleHandler.underlyingActor.getRecording === List (SignOut ()))
+      }
+    }
+    
     describe ("when sent a SignedIn message from the VestibuleHandler") {
       subject ! SignedIn (42L)
       

@@ -56,6 +56,11 @@ Jeopardy.Vestibule.Controller = (function () {
 		websocket.send ("start", {});
 	};
 	
+	self.signOut = function () {
+		websocket.send ("signOut", {});
+		view.displayControls ("START");
+	};
+	
 	return self;
 })();
 
@@ -69,6 +74,8 @@ Jeopardy.Vestibule.View = (function () {
 		$('#sign-in-button').click (function () {self.controller.signIn ($('#player-name').val ());});
 		$('#ready-button').click (self.controller.signalReady);
 		$('#start-button').click (self.controller.startGame);
+		$('#sign-out-button-ready').click (self.controller.signOut);
+		$('#sign-out-button-start').click (self.controller.signOut);
 	}
 	
 	self.controller = null;
