@@ -6,6 +6,7 @@ import org.scalatest.FunSuite
 import model.vestibule.Vestibule
 import specs.JeopardyFunctional
 import org.scalatest.junit.JUnitRunner
+import pages.vestibule.Player
 
 @DoNotDiscover
 @RunWith (classOf[JUnitRunner])
@@ -37,7 +38,7 @@ class VestibuleBehavior extends FunSuite with JeopardyFunctional {
         }
       }
       
-      test ("the Vestibule already entered by a player") {
+      test ("The Vestibule, already occupied, is entered by another player who then makes ready") {
         val oneContext = makeAnotherContext ()
         var oneVestibule: Vestibule = null
         val anotherContext = makeAnotherContext ()
@@ -51,10 +52,12 @@ class VestibuleBehavior extends FunSuite with JeopardyFunctional {
             oneVestibule = new Vestibule ()(oneContext)
             oneVestibule.enterDirectly ()
             oneVestibule.signIn ("Billy")
+            oneVestibule.ready ("Billy")
             
             try {
-              playersAppear (List ("Annie", "Billy"), oneVestibule)
-              playersAppear (List ("Annie", "Billy"), anotherVestibule)
+              val expectedPlayers = List (Player ("Annie", "signedIn"), Player ("Billy", "ready"))
+              assert (oneVestibule.playersPresent == expectedPlayers)
+              assert (anotherVestibule.playersPresent == expectedPlayers)
             }
             finally {
               oneVestibule.signOut ()

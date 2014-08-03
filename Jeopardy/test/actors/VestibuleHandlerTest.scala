@@ -44,7 +44,7 @@ class VestibuleHandlerTest extends FunSpec {
           it ("handlers get expected messages") {
             assert (socketHandler1.underlyingActor.getRecording === List (
                 SignedIn (1),
-                PlayerList (List (PlayerInfo (1, "Tommy"))))
+                PlayerList (List (PlayerInfo (1, "Tommy", SignedIn))))
             )
             assert (socketHandler2.underlyingActor.getRecording === Nil)
           }
@@ -56,7 +56,10 @@ class VestibuleHandlerTest extends FunSpec {
             socketHandler2.underlyingActor.relay (subject, SignIn ("Ursula"))
             
             it ("handlers get expected messages") {
-              val expectedPlayerList = PlayerList (List (PlayerInfo (1, "Tommy"), PlayerInfo (2, "Ursula")))
+              val expectedPlayerList = PlayerList (List (
+                  PlayerInfo (1, "Tommy", SignedIn), 
+                  PlayerInfo (2, "Ursula", SignedIn)
+              ))
               assert (socketHandler1.underlyingActor.getRecording === List (
                   expectedPlayerList
               ))
@@ -69,13 +72,30 @@ class VestibuleHandlerTest extends FunSpec {
             socketHandler1.underlyingActor.erase ()
             socketHandler2.underlyingActor.erase ()
             
+            describe ("and the first socket handler signals Ready") {
+              socketHandler1.underlyingActor.relay (subject, ReadyMsg ())
+              
+              it ("handlers get expected messages") {
+                val expectedPlayerList = PlayerList (List (
+                    PlayerInfo (1, "Tommy", Ready), 
+                    PlayerInfo (2, "Ursula", SignedIn)
+                ))
+                assert (socketHandler1.underlyingActor.getRecording === List (
+                    expectedPlayerList
+                ))
+                assert (socketHandler2.underlyingActor.getRecording === List (
+                    expectedPlayerList
+                ))
+              }
+            }
+            
             describe ("and the first socket handler signs out") {
               socketHandler1.underlyingActor.relay (subject, SignOut ());
               
               it ("handlers get expected messages") {
                 assert (socketHandler1.underlyingActor.getRecording === Nil)
                 assert (socketHandler2.underlyingActor.getRecording === List (
-                    PlayerList (List (PlayerInfo (2, "Ursula")))
+                    PlayerList (List (PlayerInfo (2, "Ursula", SignedIn)))
                 ))
               }
             }

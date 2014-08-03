@@ -21,13 +21,12 @@ class VestibulePage extends Page {
     driver.findElement (By.id ("sign-in-button")).click ()
   }
   
+  def ready () {
+    driver.findElement (By.id ("ready-button")).click ()
+  }
+  
   def signOut () {
-    pages.vestibule.Panel.values ().toList.find {panel =>
-      driver.findElement (By.id (panel.getPanelId ())).isDisplayed()
-    } match {
-      case Some (currentPanel) => driver.findElement (By.id (currentPanel.getSignOutId ())).click ()
-      case None => throw new IllegalStateException ("No known control panel is visible")
-    }
+    driver.findElement (By.id ("sign-out-button")).click ()
   }
   
   def playersPresent: List[Player] = {
@@ -36,7 +35,8 @@ class VestibulePage extends Page {
       val regMatch = """player-info-(\d+)$""".r.findFirstMatchIn(info.getAttribute ("id")).get
       val id = regMatch.group (1);
       Player (
-        driver.findElement (By.id (s"player-name-${id}")).getText()
+        driver.findElement (By.id (s"player-name-${id}")).getText (),
+        driver.findElement (By.id (s"player-status-${id}")).getText ()
       )
     }
   }

@@ -11,7 +11,10 @@ import play.api.libs.json.JsNumber
 import play.api.libs.json.JsArray
 
 case class SignedIn (id: Long)
-case class PlayerInfo (id: Long, name: String)
+trait PlayerStatus {val json: String}
+case object SignedIn extends PlayerStatus {override val json = "signedIn"}
+case object Ready extends PlayerStatus {override val json = "ready"}
+case class PlayerInfo (id: Long, name: String, status: PlayerStatus)
 case class PlayerList (players: List[PlayerInfo])
 
 class VestibuleSocketHandler (vestibuleHandler: ActorRef, out: ActorRef) extends Actor {
@@ -30,12 +33,22 @@ class VestibuleSocketHandler (vestibuleHandler: ActorRef, out: ActorRef) extends
   private def handleJsValue (msg: JsValue) {
     (msg \ "type").as[String] match {
       case "signIn" => handleSignIn (field (msg, "name"))
+      case "ready" => handleReady ()
+      case "start" => handleStart ()
       case "signOut" => handleSignOut ()
     }
   }
   
   private def handleSignIn (name: String) {
     vestibuleHandler ! SignIn (name)
+  }
+  
+  private def handleReady () {
+    vestibuleHandler ! ReadyMsg ()
+  }
+  
+  private def handleStart () {
+    vestibuleHandler ! StartMsg ()
   }
   
   private def handleSignOut () {
@@ -55,7 +68,8 @@ class VestibuleSocketHandler (vestibuleHandler: ActorRef, out: ActorRef) extends
     val players = msg.players.map {player =>
       new JsObject (List (
         ("name", new JsString (player.name)),
-        ("id", new JsNumber (player.id))
+        ("id", new JsNumber (player.id)),
+        ("status", new JsString (player.status.json))
       ))
     }
     out ! new JsObject (List (

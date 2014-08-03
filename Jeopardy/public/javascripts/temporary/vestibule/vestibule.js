@@ -58,6 +58,7 @@ Jeopardy.Vestibule.Controller = (function () {
 	
 	self.signOut = function () {
 		websocket.send ("signOut", {});
+		view.updatePlayers ({players: []});
 		view.displayControls ("START");
 	};
 	
@@ -68,14 +69,27 @@ Jeopardy.Vestibule.View = (function () {
 	
 	var self = {};
 	
-	var panels = {"SIGNIN": "sign-in-panel", "READY": "ready-panel", "START": "start-panel"};
+	var panelIds = ["sign-in-panel", "ready-panel", "start-panel", "sign-out-panel"];
+	
+	var controlSets = {
+		"SIGNIN": ["sign-in-panel"], 
+		"READY": ["ready-panel", "sign-out-panel"], 
+		"START": ["start-panel", "sign-out-panel"]
+	};
 	
 	var wireInControls = function () {
 		$('#sign-in-button').click (function () {self.controller.signIn ($('#player-name').val ());});
 		$('#ready-button').click (self.controller.signalReady);
 		$('#start-button').click (self.controller.startGame);
-		$('#sign-out-button-ready').click (self.controller.signOut);
-		$('#sign-out-button-start').click (self.controller.signOut);
+		$('#sign-out-button').click (self.controller.signOut);
+	}
+	
+	var normalizeStatus = function (inputStatus) {
+		var outputStatus;
+		["signedIn", "ready"].forEach (function (status) {
+			if (status === inputStatus) {outputStatus = status;}
+		});
+		return outputStatus ? outputStatus : "signedIn";
 	}
 	
 	self.controller = null;
@@ -88,10 +102,11 @@ Jeopardy.Vestibule.View = (function () {
 	
 	self.closed = function () {};
 	
-	self.displayControls = function (panelName) {
-		Object.keys (panels).forEach (function (key) {
-			var object = $('#' + panels[key]);
-			if (key === panelName) {
+	self.displayControls = function (controlsName) {
+		var controlSet = controlSets[controlsName];
+		_.each (panelIds, function (panelId) {
+			var object = $('#' + panelId);
+			if (_.contains (controlSet, panelId)) {
 				object.show ();
 			}
 			else {
@@ -102,10 +117,12 @@ Jeopardy.Vestibule.View = (function () {
 	
 	self.updatePlayers = function (data) {
 		$('#player-list tr').remove ();
-		data.players.forEach (function (player) {
+		_.each (data.players, function (player) {
+			player.status = normalizeStatus (player.status);
 			$('#player-list').append (
 				'<tr class="player-info" id="player-info-' + player.id + '">' +
 				    '<td class="player-name" id="player-name-' + player.id + '">' + player.name + '</td>' +
+				    '<td class="player-status" id="player-status-' + player.id + '">' + player.status + '</td>' +
 				'</tr>'
 			);
 		});

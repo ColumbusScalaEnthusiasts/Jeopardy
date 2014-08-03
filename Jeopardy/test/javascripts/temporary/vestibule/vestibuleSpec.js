@@ -163,6 +163,10 @@ describe ("A Vestibule Controller, initialized with mocks", function () {
 			expect (websocket.send).toHaveBeenCalledWith ("signOut", {});
 		});
 		
+		it ("directs player list to be cleared", function () {
+			expect (view.updatePlayers).toHaveBeenCalledWith ({players: []});
+		});
+		
 		it ("orders the SIGNIN panel", function () {
 			expect (view.displayControls).toHaveBeenCalledWith ("SIGNIN");
 		});
@@ -170,6 +174,7 @@ describe ("A Vestibule Controller, initialized with mocks", function () {
 });
 
 describe ("A Vestibule View, initialized", function () {
+	var panelIds = ["sign-in-panel", "ready-panel", "start-panel", "sign-out-panel"];
 	var subject = null;
 	var controller = null;
 	
@@ -184,11 +189,12 @@ describe ("A Vestibule View, initialized", function () {
 		 	'		</div>' +
 		 	'		<div id="ready-panel" style="display: none;">' +
 		 	'			<button id="ready-button">Ready</button>' +
-		 	'			<button id="sign-out-button-ready">Sign Out</button>' +
 		 	'		</div>' +
 		 	'		<div id="start-panel" style="display: none;">' +
 		 	'			<button id="start-button">START</button>' +
-		 	'			<button id="sign-out-button-start">Sign Out</button>' +
+		 	'		</div>' +
+		 	'		<div id="sign-out-panel" style="display: none;">' +
+		 	'			<button id="sign-out-button">Sign Out</button>' +
 		 	'		</div>' +
 			'	</div>' +
 			'</div>'
@@ -216,64 +222,73 @@ describe ("A Vestibule View, initialized", function () {
 		expect ($('#vestibule-page-content').is (':visible')).toBe (true);
 	});
 	
-	it ("leaves the sign-in pane and button panels all invisible", function () {
-		expect ($('#sign-in-panel').is (':visible')).toBe (false);
-		expect ($('#ready-panel').is (':visible')).toBe (false);
-		expect ($('#start-panel').is (':visible')).toBe (false);
+	_.each (panelIds, function (panelId) {
+		it ("leaves the " + panelId + " invisible", function () {
+			expect ($('#' + panelId).is (':visible')).toBe (false);
+		});
 	});
 	
-	var checkControlVisibility = function (name, friendlyName) {
-		var friendlyNames = ["sign-in", "ready", "start"];
+	var checkControlVisibility = function (name, controlsToShow) {
 		
-		describe ("when directed to display the " + friendlyName + " controls", function () {
+		describe ("when directed to display the " + name + " controls", function () {
 			
 			beforeEach (function () {
 				subject.displayControls (name);
 			});
-			
-			it ("shows the " + friendlyName + " controls but none of the others", function () {
-				friendlyNames.forEach (function (candidate) {
-					expect ($('#' + candidate + '-panel').is (':visible')).toBe (candidate === friendlyName);
-				});
+
+			_.each (panelIds, function (panelId) {
+				if (_.contains (controlsToShow, panelId)) {
+					it ("shows the " + panelId, function () {
+						expect ($('#' + panelId).is (':visible')).toBe (true);
+					});
+				}
+				else {
+					it ("does not show the " + panelId, function () {
+						expect ($('#' + panelId).is (':visible')).toBe (false);
+					});
+				}
 			});
 		});
 	};
 	
-	checkControlVisibility ("SIGNIN", "sign-in");
-	checkControlVisibility ("READY", "ready");
-	checkControlVisibility ("START", "start");
+	checkControlVisibility ("SIGNIN", ["sign-in-panel"]);
+	checkControlVisibility ("READY", ["ready-panel", "sign-out-panel"]);
+	checkControlVisibility ("START", ["start-panel", "sign-out-panel"]);
 	
-	describe ("when given Jeffy and Chubs to display", function () {
+	describe ("when given Jeffy, Chubs, and Pook to display", function () {
 		
 		beforeEach (function () {
 			subject.updatePlayers ({players: [
-			    {name: "Jeffy", id: 12345}, 
-			    {name: "Chubs", id: 23456}
+			    {name: "Jeffy", id: 12345, status: "signedIn"}, 
+			    {name: "Chubs", id: 23456, status: "ready"},
+			    {name: "Pook", id: 34567, status: "unrecognized"}
 			]});
 		});
 		
-		var checkNameDisplay = function (name, id) {
-			it ("displays " + name, function () {
+		var checkNameDisplay = function (name, id, status) {
+			it ("displays name for " + name, function () {
 				var nameElement = $('#player-info-' + id + ' #player-name-' + id);
 				expect (nameElement.html ()).toBe (name);
 			});
+
+			it ("displays " + status + " status for " + name, function () {
+				var statusElement = $('#player-info-' + id + ' #player-status-' + id);
+				expect (statusElement.html ()).toBe (status);
+			});
 		};
 		
-		checkNameDisplay ("Jeffy", 12345);
-		checkNameDisplay ("Chubs", 23456);
+		checkNameDisplay ("Jeffy", 12345, "signedIn");
+		checkNameDisplay ("Chubs", 23456, "ready");
+		checkNameDisplay ("Pook", 34567, "signedIn");
 	});
 	
-	describe ("when the sign-in panel is made visible", function () {
+	describe ("when directed to display the SIGNIN controls", function () {
 		
 		beforeEach (function () {
-			$('#sign-in-panel').show ();
+			subject.displayControls ("SIGNIN");
 		});
 		
-		afterEach (function () {
-			$('#sign-in-panel').hide ();
-		});
-		
-		describe ("and is filled out and submitted", function () {
+		describe ("and the player name is filled out and submitted", function () {
 			
 			beforeEach (function () {
 				$('#player-name').val ("Chip");
@@ -286,14 +301,10 @@ describe ("A Vestibule View, initialized", function () {
 		});
 	});
 	
-	describe ("when the ready panel is made visible", function () {
+	describe ("when directed to display the READY controls", function () {
 		
 		beforeEach (function () {
-			$('#ready-panel').show ();
-		});
-		
-		afterEach (function () {
-			$('#ready-panel').hide ();
+			subject.displayControls ("READY");
 		});
 
 		describe ("and the Ready button is clicked", function () {
@@ -310,7 +321,7 @@ describe ("A Vestibule View, initialized", function () {
 		describe ("and the Sign Out button is clicked", function () {
 			
 			beforeEach (function () {
-				$('#sign-out-button-ready').click ();
+				$('#sign-out-button').click ();
 			});
 			
 			it ("the controller is informed", function () {
@@ -319,14 +330,10 @@ describe ("A Vestibule View, initialized", function () {
 		})
 	});
 	
-	describe ("when the start panel is made visible", function () {
+	describe ("when directed to display the START controls", function () {
 		
 		beforeEach (function () {
-			$('#start-panel').show ();
-		});
-		
-		afterEach (function () {
-			$('#start-panel').hide ();
+			subject.displayControls ("START");
 		});
 
 		describe ("and the START button is clicked", function () {
@@ -343,7 +350,7 @@ describe ("A Vestibule View, initialized", function () {
 		describe ("and the Sign Out button is clicked", function () {
 			
 			beforeEach (function () {
-				$('#sign-out-button-start').click ();
+				$('#sign-out-button').click ();
 			});
 			
 			it ("the controller is informed", function () {

@@ -4,6 +4,7 @@
     <head lang="en">
         <link rel="stylesheet" href="@routes.Assets.at("stylesheets/main.css")" >
         <script src="@routes.Assets.at("javascripts/jquery-1.8.2.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/underscore-1.6.0.min.js")" type="text/javascript"></script>
         
         <script src="@routes.Assets.at("javascripts/util/utils.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/temporary/vestibule/vestibule.js")" type="text/javascript"></script>
@@ -28,11 +29,12 @@
 			 	</div>
 			 	<div id="ready-panel" style="display: none;">
 			 		<button id="ready-button">Ready</button>
-				    <button id="sign-out-button-ready">Sign Out</button>
 			 	</div>
 			 	<div id="start-panel" style="display: none;">
 			 		<button id="start-button">START</button>
-				    <button id="sign-out-button-start">Sign Out</button>
+			 	</div>
+			 	<div id="sign-out-panel" style="display: none;">
+				    <button id="sign-out-button">Sign Out</button>
 			 	</div>
 			 </div>
 		</div>

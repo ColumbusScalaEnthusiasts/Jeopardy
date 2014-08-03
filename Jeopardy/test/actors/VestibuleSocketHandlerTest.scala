@@ -38,20 +38,50 @@ class VestibuleSocketHandlerTest extends FunSpec {
       it ("relays the message to the VestibuleHandler") {
         assert (vestibuleHandler.underlyingActor.getRecording === List (SignIn ("Billy Tarmash")))
       }
-    }
     
-    describe ("when sent a SignOut message from the front end") {
-      vestibuleHandler.underlyingActor.erase()
-      val json = Json.parse ("""
+      describe ("followed by a Ready message") {
+        vestibuleHandler.underlyingActor.erase()
+        val json = Json.parse ("""
+{
+  "type": "ready",
+  "data": {}
+}
+""")
+        subject ! json
+        
+        it ("relays the message to the VestibuleHandler") {
+          assert (vestibuleHandler.underlyingActor.getRecording === List (ReadyMsg ()))
+        }
+      
+        describe ("followed by a Start message") {
+          vestibuleHandler.underlyingActor.erase()
+          val json = Json.parse ("""
+{
+  "type": "start",
+  "data": {}
+}
+""")
+          subject ! json
+          
+          it ("relays the message to the VestibuleHandler") {
+            assert (vestibuleHandler.underlyingActor.getRecording === List (StartMsg ()))
+          }
+        }
+      }
+    
+      describe ("followed by a SignOut message") {
+        vestibuleHandler.underlyingActor.erase()
+        val json = Json.parse ("""
 {
   "type": "signOut",
   "data": {}
 }
 """)
-      subject ! json
-      
-      it ("relays the message to the VestibuleHandler") {
-        assert (vestibuleHandler.underlyingActor.getRecording === List (SignOut ()))
+        subject ! json
+        
+        it ("relays the message to the VestibuleHandler") {
+          assert (vestibuleHandler.underlyingActor.getRecording === List (SignOut ()))
+        }
       }
     }
     
@@ -71,7 +101,9 @@ class VestibuleSocketHandlerTest extends FunSpec {
     }
     
     describe ("when sent a PlayerList message from the VestibuleHandler") {
-      subject ! PlayerList (List (PlayerInfo (123L, "Pookie"), PlayerInfo (321L, "Chomps")))
+      subject ! PlayerList (List (
+          PlayerInfo (123L, "Pookie", SignedIn), 
+          PlayerInfo (321L, "Chomps", Ready)))
       
       it ("relays the message go the front end") {
         assert (out.underlyingActor.getRecording === List (Json.parse ("""
@@ -79,8 +111,8 @@ class VestibuleSocketHandlerTest extends FunSpec {
 	"type": "playerList",
   "data": {
 		"players": [
-			{"name": "Pookie", "id": 123},
-			{"name": "Chomps", "id": 321}
+			{"name": "Pookie", "id": 123, "status": "signedIn"},
+			{"name": "Chomps", "id": 321, "status": "ready"}
 		]
 	}
 }

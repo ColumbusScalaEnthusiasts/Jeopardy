@@ -14,11 +14,14 @@ object VestibuleHandler {
 
 case class NewConnection ()
 case class SignIn (name: String)
+case class ReadyMsg ()
+case class StartMsg ()
 case class SignOut ()
 
 case class PlayerRecord (
   val id: Long,
   val name: String,
+  val status: PlayerStatus,
   val listener: ActorRef
 )
 
@@ -29,6 +32,7 @@ class VestibuleHandler extends Actor {
   override def receive = {
     case msg: NewConnection => handleNewConnection ()
     case msg: SignIn => handleSignIn (msg)
+    case msg: ReadyMsg => handleReadyMsg ()
     case msg: SignOut => handleSignOut ()
   }
   
@@ -37,10 +41,20 @@ class VestibuleHandler extends Actor {
   }
   
   private def handleSignIn (msg: SignIn) {
-    players = PlayerRecord (nextId, msg.name, sender) :: players
+    players = PlayerRecord (nextId, msg.name, SignedIn, sender) :: players
     sendPlayerLists ()
     sender ! SignedIn (nextId)
     nextId = nextId + 1
+  }
+  
+  private def handleReadyMsg () {
+    players = players.map {player =>
+      player.listener match {
+        case listener if (listener == sender) => playerRecordWithStatus (player, Ready)
+        case _ => player
+      }
+    }
+    sendPlayerLists ()
   }
   
   private def handleSignOut () {
@@ -54,5 +68,14 @@ class VestibuleHandler extends Actor {
     }
   }
   
-  private def makePlayerList = PlayerList (players.map {p => PlayerInfo (p.id, p.name)}.reverse)
+  private def makePlayerList = PlayerList (players.map {p => PlayerInfo (p.id, p.name, p.status)}.reverse)
+  
+  private def playerRecordWithStatus (player: PlayerRecord, status: PlayerStatus): PlayerRecord = {
+    PlayerRecord (
+      player.id,
+      player.name,
+      status,
+      player.listener
+    )
+  }
 }
