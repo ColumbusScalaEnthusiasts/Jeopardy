@@ -1,14 +1,12 @@
-package actors
+package services.routerplugins
 
-import akka.actor.ActorSystem
-import akka.actor.ActorRef
-import akka.actor.Actor
-import akka.actor.Props
 import play.api.libs.json.JsValue
+import akka.actor.Actor
+import akka.actor.ActorRef
 import play.api.libs.json.JsObject
-import play.api.libs.json.JsString
-import play.api.libs.json.JsNumber
 import play.api.libs.json.JsArray
+import play.api.libs.json.JsNumber
+import play.api.libs.json.JsString
 
 case class SignedIn (id: Long)
 trait PlayerStatus {val json: String}
@@ -17,51 +15,51 @@ case object Ready extends PlayerStatus {override val json = "ready"}
 case class PlayerInfo (id: Long, name: String, status: PlayerStatus)
 case class PlayerList (players: List[PlayerInfo])
 
-class VestibuleSocketHandler (vestibuleHandler: ActorRef, out: ActorRef) extends Actor {
+class VestibulePlugin extends RouterPlugin {
   
-  vestibuleHandler ! NewConnection ()
-  
-  override def receive = {
-    // from front end
-    case msg: JsValue => handleJsValue (msg)
-    
-    // from back end
-    case msg: SignedIn => handleSignedIn (msg)
-    case msg: PlayerList => handlePlayerList (msg)
+  override def onInstallation () {
+    send (actors.NewConnection (), backEndHandler)
   }
   
-  private def handleJsValue (msg: JsValue) {
-    (msg \ "type").as[String] match {
-      case "signIn" => handleSignIn (field (msg, "name"))
+  override def handleIncomingMessage (msgType: String, msgData: JsValue) {
+    msgType match {
+      case "signIn" => handleSignIn (field (msgData, "name"))
       case "ready" => handleReady ()
       case "start" => handleStart ()
       case "signOut" => handleSignOut ()
     }
   }
   
+  override def handleOutgoingMessage (msg: Any) {
+    msg match {
+      case m: SignedIn => handleSignedIn (m)
+      case m: PlayerList => handlePlayerList (m)
+    }
+  }
+  
   private def handleSignIn (name: String) {
-    vestibuleHandler ! SignIn (name)
+    send (actors.SignIn (name), backEndHandler)
   }
   
   private def handleReady () {
-    vestibuleHandler ! ReadyMsg ()
+    send (actors.ReadyMsg (), backEndHandler)
   }
   
   private def handleStart () {
-    vestibuleHandler ! StartMsg ()
+    send (actors.StartMsg (), backEndHandler)
   }
   
   private def handleSignOut () {
-    vestibuleHandler ! SignOut ()
+    send (actors.SignOut (), backEndHandler)
   }
   
   private def handleSignedIn (msg: SignedIn) {
-    out ! new JsObject (List (
+    send (new JsObject (List (
       ("type", new JsString ("signedIn")),
       ("data", new JsObject (List (
         ("id", new JsNumber (msg.id))
       )))
-    ))
+    )), outputSocket)
   }
   
   private def handlePlayerList (msg: PlayerList) {
@@ -72,19 +70,19 @@ class VestibuleSocketHandler (vestibuleHandler: ActorRef, out: ActorRef) extends
         ("status", new JsString (player.status.json))
       ))
     }
-    out ! new JsObject (List (
+    send (new JsObject (List (
       ("type", new JsString ("playerList")),
       ("data", new JsObject (List (
         ("players", new JsArray (players))
       )))
-    ))
+    )), outputSocket)
   }
   
   private def field (msg: JsValue, fieldName: String): String = {
-    ((msg \ "data") \ fieldName).as[String]
+    (msg \ fieldName).as[String]
   }
   
   private def numField (msg: JsValue, fieldName: String): Long = {
-    ((msg \ "data") \ fieldName).as[Long]
+    (msg \ fieldName).as[Long]
   }
 }

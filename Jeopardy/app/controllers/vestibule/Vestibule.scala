@@ -21,7 +21,7 @@ trait Vestibule {
 
   // TODO: Dunno how to test this
   def wsinit = WebSocket.acceptWithActor[JsValue, JsValue] {request => out => 
-    Props (new VestibuleSocketHandler (vestibuleHandler, out))
+    Props (new PlayerSocketRouter (vestibuleHandler, out))
   }
 }
 

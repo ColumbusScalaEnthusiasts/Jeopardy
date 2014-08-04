@@ -3,11 +3,15 @@ package actors
 import org.junit.runner.RunWith
 import org.scalatest.DoNotDiscover
 import org.scalatest.path.FunSpec
-import org.scalatest.junit.JUnitRunner
 import akka.actor.ActorSystem
-import akka.testkit.TestActorRef
 import akka.actor.Props
-import utils.TestUtils._
+import akka.testkit.TestActorRef
+import utils.TestUtils.Recorder
+import org.scalatest.junit.JUnitRunner
+import services.routerplugins.PlayerList
+import services.routerplugins.PlayerInfo
+import services.routerplugins.SignedIn
+import services.routerplugins.Ready
 
 @DoNotDiscover
 @RunWith(classOf[JUnitRunner])

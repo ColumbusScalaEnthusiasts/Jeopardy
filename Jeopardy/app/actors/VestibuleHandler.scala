@@ -5,6 +5,11 @@ import akka.actor.ActorRef
 import akka.actor.ActorSystem
 import akka.actor.Props
 import akka.actor.actorRef2Scala
+import services.routerplugins.SignedIn
+import services.routerplugins.Ready
+import services.routerplugins.PlayerStatus
+import services.routerplugins.PlayerInfo
+import services.routerplugins.PlayerList
 
 object VestibuleHandler {
   def apply (system: ActorSystem): ActorRef = {
