@@ -8,7 +8,6 @@ import specs.JeopardyFunctional
 import org.scalatest.junit.JUnitRunner
 import pages.vestibule.Player
 
-@DoNotDiscover
 @RunWith (classOf[JUnitRunner])
 class VestibuleBehavior extends FunSuite with JeopardyFunctional {
     
