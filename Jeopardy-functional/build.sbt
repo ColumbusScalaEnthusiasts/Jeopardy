@@ -2,7 +2,7 @@ name := """Jeopardy-functional"""
 
 version := "0.1-SNAPSHOT"
 
-scalaVersion := "2.11.1"
+scalaVersion := "2.11.2"
 
 libraryDependencies ++= Seq(
   "junit" % "junit" % "4.11",
