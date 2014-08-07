@@ -109,6 +109,20 @@ class VestibulePluginTest extends FunSpec {
       }
     }
     
+    describe ("when sent a GameStarting message from the VestibuleHandler") {
+      router.underlyingActor.erase()
+      subject.handleOutgoingMessage (GameStarting ())
+      
+      it ("relays the message go the front end") {
+        assert (router.underlyingActor.getRecording === List (Relay (Json.parse ("""
+{
+	"type": "gameStarting",
+  "data": {}
+}
+"""), outputSocket)))
+      }
+    }
+    
     system.shutdown()
   }
 }

@@ -9,6 +9,8 @@ import services.routerplugins.BoardStatus
 import services.routerplugins.AskQuestion
 import services.routerplugins.BuzzWinner
 import services.routerplugins.QuestionClaimed
+import akka.actor.ActorSystem
+import akka.actor.Props
 
 trait ActivePlayerStatus {}
 case object InControlStatus extends ActivePlayerStatus {}
@@ -35,6 +37,13 @@ case class ActivePlayerRecord (
     WaitingForChoiceStatus, 
     record.listener
    )
+}
+
+object JeopardyBoardHandler {
+  def apply (system: ActorSystem, boardSelector: BoardSelectorService, multiplier: Int, 
+      players: List[ActivePlayerRecord]): ActorRef = {
+    system.actorOf (Props (classOf[JeopardyBoardHandler], boardSelector, multiplier, players))
+  }
 }
 
 class JeopardyBoardHandler (boardSelector: BoardSelectorService, multiplier: Int, players: List[ActivePlayerRecord]) extends Actor {

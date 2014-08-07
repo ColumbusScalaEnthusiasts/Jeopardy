@@ -14,6 +14,7 @@ case object SignedIn extends PlayerStatus {override val json = "signedIn"}
 case object Ready extends PlayerStatus {override val json = "ready"}
 case class PlayerInfo (id: Long, name: String, status: PlayerStatus)
 case class PlayerList (players: List[PlayerInfo])
+case class GameStarting ()
 
 class VestibulePlugin extends RouterPlugin {
   
@@ -34,6 +35,7 @@ class VestibulePlugin extends RouterPlugin {
     msg match {
       case m: SignedIn => handleSignedIn (m)
       case m: PlayerList => handlePlayerList (m)
+      case m: GameStarting => handleGameStarting ()
     }
   }
   
@@ -75,6 +77,13 @@ class VestibulePlugin extends RouterPlugin {
       ("data", new JsObject (List (
         ("players", new JsArray (players))
       )))
+    )), outputSocket)
+  }
+  
+  private def handleGameStarting () {
+    send (new JsObject (List (
+      ("type", new JsString ("gameStarting")),
+      ("data", new JsObject (Nil))
     )), outputSocket)
   }
   

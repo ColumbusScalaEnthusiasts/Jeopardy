@@ -26,7 +26,7 @@ object TestUtils {
       target ! msg
     }
     
-    def getRecording = recording.toList.reverse
+    def getRecording = recording.toList
     
     def erase () {
       recording.clear ()

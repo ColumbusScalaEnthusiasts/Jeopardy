@@ -12,26 +12,31 @@ import play.api.libs.json.JsArray
 import services.routerplugins.RouterPlugin
 import services.routerplugins.VestibulePlugin
 
-case class InstallPlugin (plugin: RouterPlugin)
+case class InstallPluginAndBackEnd (plugin: RouterPlugin, backEndHandlerOpt: Option[ActorRef])
 case class Relay (msg: Any, target: ActorRef)
 
-class PlayerSocketRouter (backEndHandler: ActorRef, out: ActorRef) extends Actor {
+class PlayerSocketRouter (var backEndHandler: ActorRef, outputSocket: ActorRef) extends Actor {
   
   var plugin: RouterPlugin = null
   
-  handleInstallPlugin (new VestibulePlugin ())
+  handleInstallPlugin (new VestibulePlugin (), None)
   
   override def receive = {
     case msg: Relay => msg.target ! msg.msg
-    case msg: InstallPlugin => handleInstallPlugin (msg.plugin)
+    case msg: InstallPluginAndBackEnd => handleInstallPlugin (msg.plugin, msg.backEndHandlerOpt)
     case msg: JsValue => plugin.handleIncomingMessage((msg \ "type").as[String], (msg \ "data"))
     case msg => plugin.handleOutgoingMessage (msg)
   }
   
-  private def handleInstallPlugin (plugin: RouterPlugin) {
+  private def handleInstallPlugin (plugin: RouterPlugin, backEndHandlerOpt: Option[ActorRef]) {
     if (this.plugin != null) {this.plugin.onRemoval ()}
     this.plugin = plugin
-    plugin.install (backEndHandler, self, out)
+    val newBackEndHandler = backEndHandlerOpt match {
+      case Some (handler) => handler
+      case None => backEndHandler
+    }
+    backEndHandler = newBackEndHandler
+    plugin.install (newBackEndHandler, self, outputSocket)
     plugin.onInstallation()
   }
 }

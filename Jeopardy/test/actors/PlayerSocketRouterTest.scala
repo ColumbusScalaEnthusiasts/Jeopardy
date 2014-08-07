@@ -22,33 +22,38 @@ class PlayerSocketRouterTest extends FunSpec {
   describe ("A PlayerSocketRouter") {
     val system = ActorSystem ()
     val outputSocket = Recorder (system)
-    val vestibuleHandler = Recorder (system)
-    val subject = TestActorRef (Props (classOf[PlayerSocketRouter], vestibuleHandler, outputSocket))(system)
+    val backEndHandler = Recorder (system)
+    val subject = TestActorRef[PlayerSocketRouter](Props (classOf[PlayerSocketRouter], backEndHandler, outputSocket))(system)
     
     it ("sends a NewConnection message to the VestibuleHandler on startup") {
-      assert (vestibuleHandler.underlyingActor.getRecording === List (NewConnection ()))
+      assert (backEndHandler.underlyingActor.getRecording === List (NewConnection ()))
     }
     
     describe ("that receives a Relay message") {
-      vestibuleHandler.underlyingActor.erase()
-      subject ! Relay (ReadyMsg (), vestibuleHandler)
+      backEndHandler.underlyingActor.erase()
+      subject ! Relay (ReadyMsg (), backEndHandler)
       
       it ("performs the relay") {
-        assert (vestibuleHandler.underlyingActor.getRecording === List (ReadyMsg ()))
+        assert (backEndHandler.underlyingActor.getRecording === List (ReadyMsg ()))
       }
     }
     
-    describe ("when a mock plugin is installed") {
+    describe ("when a mock plugin is installed without a back end") {
       val plugin = mock (classOf[RouterPlugin])
-      subject ! InstallPlugin (plugin)
+      subject ! InstallPluginAndBackEnd (plugin, None)
       
       it ("the plugin's onInstallation method is called") {
         verify (plugin).onInstallation()
       }
       
-      describe ("and a different mock plugin is installed") {
+      it ("the back end handler remains the same") {
+        assert (subject.underlyingActor.backEndHandler === backEndHandler)
+      }
+      
+      describe ("and a different mock plugin and back end is installed") {
         val differentPlugin = mock (classOf[RouterPlugin])
-        subject ! InstallPlugin (differentPlugin)
+        val differentBackEndHandler = Recorder (system)
+        subject ! InstallPluginAndBackEnd (differentPlugin, Some (differentBackEndHandler))
         
         it ("the new plugin's onInstallation method is called") {
           verify (differentPlugin).onInstallation()
@@ -56,6 +61,10 @@ class PlayerSocketRouterTest extends FunSpec {
         
         it ("the old plugin's onRemoval method is called") {
           verify (plugin).onRemoval()
+        }
+        
+        it ("the back end handler is replaced") {
+          assert (subject.underlyingActor.backEndHandler === differentBackEndHandler)
         }
       }
       
@@ -77,7 +86,7 @@ class PlayerSocketRouterTest extends FunSpec {
       }
       
       describe ("and a message from the back end is received") {
-        vestibuleHandler.underlyingActor.erase()
+        backEndHandler.underlyingActor.erase()
         val msg = PlayerList (List (
             PlayerInfo (123L, "Pookie", SignedIn), 
             PlayerInfo (321L, "Chomps", Ready)

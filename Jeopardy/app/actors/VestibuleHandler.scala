@@ -10,6 +10,9 @@ import services.routerplugins.Ready
 import services.routerplugins.PlayerStatus
 import services.routerplugins.PlayerInfo
 import services.routerplugins.PlayerList
+import services.routerplugins.GameStarting
+import services.routerplugins.BoardPlugin
+import services.board.BoardSelectorService
 
 object VestibuleHandler {
   def apply (system: ActorSystem): ActorRef = {
@@ -30,7 +33,14 @@ case class PlayerRecord (
   val listener: ActorRef
 )
 
+class JeopardyBoardHandlerFactory {
+  def make (system: ActorSystem, multiplier: Int, players: List[ActivePlayerRecord]): ActorRef = {
+    null
+  }
+}
+
 class VestibuleHandler extends Actor {
+  var jeopardyBoardHandlerFactory = new JeopardyBoardHandlerFactory ()
   private var nextId = 1;
   private var players = List[PlayerRecord]()
   
@@ -38,6 +48,7 @@ class VestibuleHandler extends Actor {
     case msg: NewConnection => handleNewConnection ()
     case msg: SignIn => handleSignIn (msg)
     case msg: ReadyMsg => handleReadyMsg ()
+    case msg: StartMsg => handleStartMsg ()
     case msg: SignOut => handleSignOut ()
   }
   
@@ -60,6 +71,37 @@ class VestibuleHandler extends Actor {
       }
     }
     sendPlayerLists ()
+  }
+  
+  private def handleStartMsg () {
+    val readyPlayers = players.filter {_.status == Ready}
+    if (readyPlayers.size < 2) {return}
+    players = players.filter {player => !readyPlayers.contains (player)}
+    handleStartMsgForUnreadyPlayers ()
+    handleStartMsgForReadyPlayers (readyPlayers)
+  }
+  
+  private def handleStartMsgForUnreadyPlayers () {
+    sendPlayerLists ()
+  }
+  
+  private def handleStartMsgForReadyPlayers (players: List[PlayerRecord]) {
+    // TODO: This will need to move to bootstrap code when we get a database
+    val boardSelector = new BoardSelectorService ()
+    val activePlayers = players.map {player =>
+      ActivePlayerRecord (
+        player.id,
+        player.name, 
+        0,
+        if (player.listener == sender) {InControlStatus} else {WaitingForChoiceStatus},
+        player.listener
+      )
+    }
+    val boardHandler = jeopardyBoardHandlerFactory.make (context.system, 200, activePlayers)
+    players.foreach {player => 
+      player.listener ! GameStarting ()
+      player.listener ! InstallPluginAndBackEnd (new BoardPlugin (), Some (boardHandler))
+    }
   }
   
   private def handleSignOut () {
