@@ -7,6 +7,7 @@ import play.api.libs.json.JsObject
 import play.api.libs.json.JsArray
 import play.api.libs.json.JsNumber
 import play.api.libs.json.JsString
+import utils.Utils._
 
 case class SignedIn (id: Long)
 trait PlayerStatus {val json: String}
@@ -85,13 +86,5 @@ class VestibulePlugin extends RouterPlugin {
       ("type", new JsString ("gameStarting")),
       ("data", new JsObject (Nil))
     )), outputSocket)
-  }
-  
-  private def field (msg: JsValue, fieldName: String): String = {
-    (msg \ fieldName).as[String]
-  }
-  
-  private def numField (msg: JsValue, fieldName: String): Long = {
-    (msg \ fieldName).as[Long]
   }
 }

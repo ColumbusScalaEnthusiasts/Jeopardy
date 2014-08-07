@@ -41,14 +41,14 @@ class JeopardyBoardHandlerTest extends FunSpec {
 
     it ("sends a BoardStatus message to Jeffy saying that he's InControl") {
       val msg = findSentMessage[BoardStatus] (jeffy)
-      assert (msg.playerStatus === InControlStatus)
+      assert (msg.players === players)
       assert (msg.columns(0).category.name === "Category 1")
       assert (msg.columns(2).questions(3).value === 800)
     }
     
     it ("sends a BoardStatus message to Chubs saying that he's WaitingForChoice") {
       val msg = findSentMessage[BoardStatus] (chubs)
-      assert (msg.playerStatus === WaitingForChoiceStatus)
+      assert (msg.players === players)
     }
     
     describe ("when Jeffy chooses an available question") {

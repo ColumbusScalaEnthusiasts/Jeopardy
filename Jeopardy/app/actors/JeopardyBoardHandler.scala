@@ -84,8 +84,8 @@ class JeopardyBoardHandler (boardSelector: BoardSelectorService, multiplier: Int
   
   private def sendBoardStatus (board: Board, players: List[ActivePlayerRecord]) {
     val columns = makeBoardColumns (board)
+ 		val msg = BoardStatus (players, columns)
     players.foreach {player =>
-      val msg = BoardStatus (player.status, columns)
       player.listener ! msg
     }
   }

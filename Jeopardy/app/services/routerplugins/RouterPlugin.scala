@@ -15,7 +15,7 @@ trait RouterPlugin {
   
   def install (backEndHandler: ActorRef, router: ActorRef, outputSocket: ActorRef) {
     this.backEndHandler = backEndHandler
-    this.router = router;
+    this.router = router
     this.outputSocket = outputSocket
   }
   
