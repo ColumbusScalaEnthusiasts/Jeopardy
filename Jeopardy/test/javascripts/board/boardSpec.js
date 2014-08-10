@@ -13,7 +13,8 @@ describe ("A Board controller, initialized with mocks,", function () {
 			initialize: jasmine.createSpy (),
 			updateBoard: jasmine.createSpy (),
 			displayUserStatus: jasmine.createSpy (),
-			updateOpponents: jasmine.createSpy ()
+			updateOpponents: jasmine.createSpy (),
+			showQuestionAndBuzzer: jasmine.createSpy ()
 		};
 		subject = Jeopardy.Board.Controller;
 		
@@ -79,14 +80,44 @@ describe ("A Board controller, initialized with mocks,", function () {
 			});
 			
 			it ("relays the chosen question to the back end", function () {
-				expect (websocket.send).toHaveBeenCalledWith ({
-					type: "chooseQuestion",
-					data: {categoryIndex: 1, rowIndex: 0}
-				});
+				expect (websocket.send).toHaveBeenCalledWith ("chooseQuestion", {categoryIndex: 1, rowIndex: 0});
 			});
 			
 			it ("removes Mike from control", function () {
 				expect (view.displayUserStatus).toHaveBeenCalledWith ("WaitingForChoiceStatus");
+			});
+		});
+		
+		describe ("and Mike hits the buzzer", function () {
+			
+			beforeEach (function () {
+				subject.buzz ();
+			});
+			
+			it ("ignores the buzz because Mike is not in WaitingForBuzzStatus", function () {
+				expect (websocket.send).not.toHaveBeenCalled ();
+			});
+		});
+		
+		describe ("and a question is asked", function () {
+			
+			beforeEach (function () {
+				boardHandlers.askQuestion ({categoryIndex: 0, rowIndex: 1, text: "Black, gritty, and viscous"});
+			});
+			
+			it ("instructs view to show question and buzzer", function () {
+				expect (view.showQuestionAndBuzzer).toHaveBeenCalledWith (0, 1, "Black, gritty, and viscous");
+			});
+			
+			describe ("and Mike hits the buzzer", function () {
+				
+				beforeEach (function () {
+					subject.buzz ();
+				});
+				
+				it ("relays the buzz to the back end", function () {
+					expect (websocket.send).toHaveBeenCalledWith ("buzz", {})
+				});
 			});
 		});
 	});

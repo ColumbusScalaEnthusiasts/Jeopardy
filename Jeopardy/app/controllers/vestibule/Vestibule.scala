@@ -15,7 +15,7 @@ trait Vestibule {
   var vestibuleHandler = VestibuleHandler (Akka.system)
   
   def index = Action {
-    Ok(views.html.vestibule())
+    Ok(views.html.page())
   }
 
   // TODO: Dunno how to test this

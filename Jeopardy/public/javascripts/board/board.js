@@ -25,6 +25,11 @@ Jeopardy.Board.Controller = (function () {
 		view.updateOpponents (findOpponents ());
 	};
 	
+	var handleAskQuestion = function (askQuestion) {
+		_.each (boardStatus.players, function (player) {player.status = "WaitingForBuzzStatus";});
+		view.showQuestionAndBuzzer (askQuestion.categoryIndex, askQuestion.rowIndex, askQuestion.text);
+	};
+	
 	var findQuestion = function (questionId) {
 		var categoryIndex = null;
 		var rowIndex = null;
@@ -40,7 +45,8 @@ Jeopardy.Board.Controller = (function () {
 	};
 	
 	var eventHandlers = {
-		boardStatus: handleBoardStatus
+		boardStatus: handleBoardStatus,
+		askQuestion: handleAskQuestion
 	};
 	
 	self.initialize = function (playerIdParam, websocketParam, viewParam) {
@@ -56,8 +62,12 @@ Jeopardy.Board.Controller = (function () {
 		if (findUserPlayer ().status !== "InControlStatus") {return;}
 		view.displayUserStatus ("WaitingForChoiceStatus");
 		var coordinates = findQuestion (questionId);
-		websocket.send ({type: "chooseQuestion", 
-			data: {categoryIndex: coordinates.categoryIndex, rowIndex: coordinates.rowIndex}});
+		websocket.send ("chooseQuestion", {categoryIndex: coordinates.categoryIndex, rowIndex: coordinates.rowIndex});
+	};
+	
+	self.buzz = function () {
+		if (findUserPlayer ().status !== "WaitingForBuzzStatus") {return;}
+		websocket.send ("buzz", {});
 	};
 	
 	return self;
