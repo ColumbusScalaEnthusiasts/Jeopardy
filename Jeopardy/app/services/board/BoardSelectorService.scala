@@ -29,6 +29,21 @@ case class Answer (
 
 class BoardSelectorService {
   def makeBoard (multiplier: Int): Board = {
-    throw new UnsupportedOperationException ("Test-drive me!")
+    return Board ((1 to 6).map {column =>
+      BoardColumn (
+        Category (100 + column, s"Category ${column}"),
+        (1 to 5).map {row =>
+          Question (
+            (column * 10) + row,
+            s"${row * multiplier}-point question from Category ${column}",
+            row * multiplier,
+            ((column * row) & 1) match {
+              case 0 => List (Answer (1, "Right Answer", true), Answer (2, "Wrong Answer", false))
+              case 1 => List (Answer (2, "Wrong Answer", false), Answer (1, "Right Answer", true))
+            }
+          )
+        }.toList
+      )
+    }.toList)
   }
 }

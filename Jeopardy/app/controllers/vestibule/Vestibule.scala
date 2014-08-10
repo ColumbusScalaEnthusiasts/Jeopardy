@@ -4,7 +4,6 @@ import scala.concurrent.duration._
 import actors._
 import akka.actor.ActorRef
 import akka.actor.Props
-import json.JsonFormats._
 import play.api.Play.current
 import play.api.libs.json.JsValue
 import play.api.mvc._

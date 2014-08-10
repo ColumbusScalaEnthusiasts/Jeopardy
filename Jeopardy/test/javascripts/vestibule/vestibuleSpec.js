@@ -12,6 +12,7 @@ describe ("A Vestibule Controller, initialized with mocks", function () {
 			initialize: jasmine.createSpy (),
 			displayControls: jasmine.createSpy (),
 			updatePlayers: jasmine.createSpy (),
+			displayBoard: jasmine.createSpy (),
 			closed: jasmine.createSpy ()
 		};
 		
@@ -40,6 +41,7 @@ describe ("A Vestibule Controller, initialized with mocks", function () {
 		var close = null;
 		var playerList = null;
 		var signedIn = null;
+		var gameStarting = null;
 		
 		beforeEach (function () {
 			var call = Jeopardy.Utils.websocket.calls[0];
@@ -48,6 +50,7 @@ describe ("A Vestibule Controller, initialized with mocks", function () {
 			close = call.args[1].close;
 			playerList = call.args[1].events.playerList;
 			signedIn = call.args[1].events.signedIn;
+			gameStarting = call.args[1].events.gameStarting;
 		});
 		
 		it ("with the expected URL", function () {
@@ -104,6 +107,24 @@ describe ("A Vestibule Controller, initialized with mocks", function () {
 			
 			it ("instructs the view to display the ready-button control panel", function () {
 				expect (view.displayControls).toHaveBeenCalledWith ("READY");
+			});
+		});
+		
+		describe ("with a gameStarting callback that, when called", function () {
+			
+			beforeEach (function () {
+				subject.playerId = 1234;
+				spyOn (Jeopardy.Board.Controller, 'initialize');
+				gameStarting ();
+			});
+			
+			it ("instructs the view to display the board", function () {
+				expect (view.displayBoard).toHaveBeenCalledWith ();
+			});
+			
+			it ("hands the player ID, websocket, and Board view over to the Board controller", function () {
+				expect (Jeopardy.Board.Controller.initialize).toHaveBeenCalledWith (1234, websocket, 
+						Jeopardy.Board.View);
 			});
 		});
 	});
@@ -196,6 +217,9 @@ describe ("A Vestibule View, initialized", function () {
 		 	'		<div id="sign-out-panel" style="display: none;">' +
 		 	'			<button id="sign-out-button">Sign Out</button>' +
 		 	'		</div>' +
+			'	</div>' +
+			'	<div id="board-page-content" style="display: none;">' +
+			'       SOMETHING TO SEE' +
 			'	</div>' +
 			'</div>'
 		);
@@ -357,5 +381,19 @@ describe ("A Vestibule View, initialized", function () {
 				expect (controller.signOut).toHaveBeenCalled ();
 			});
 		})
+	});
+	
+	describe ("when directed to display the board", function () {
+		beforeEach (function ( ){
+			subject.displayBoard ();
+		});
+		
+		it ("hides vestibule page content", function () {
+			expect ($("#vestibule-page-content").is (":visible")).toBe (false);
+		});
+		
+		it ("shows board page content", function () {
+			expect ($("#board-page-content").is (":visible")).toBe (true);
+		});
 	});
 });

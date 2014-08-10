@@ -7,7 +7,8 @@
         <script src="@routes.Assets.at("javascripts/underscore-1.6.0.min.js")" type="text/javascript"></script>
         
         <script src="@routes.Assets.at("javascripts/util/utils.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascripts/temporary/vestibule/vestibule.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/vestibule/vestibule.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/board/board.js")" type="text/javascript"></script>
     </head>
     <body>
 		<div id="vestibule-page-content" style="display: none;">
@@ -15,10 +16,10 @@
 		    	<thead>
 		    		<tr>
 			    		<td>Player Name</td>
+			    		<td>Status</td>
 			    	</tr>
 		    	</thead>
 		        <tbody id="player-list">
-		        	<!-- <tr class="player-info" id="player-info-<id>"><td class="player-name" id="player-name-<id>">name</td></tr> -->
 		        </tbody>
 		    </table>
 			 <div id="player-controls">
@@ -37,6 +38,29 @@
 				    <button id="sign-out-button">Sign Out</button>
 			 	</div>
 			 </div>
+		</div>
+		<div id="board-page-content" style="display: none;">
+			<table>
+				<thead>
+					<tr id="categories">
+					</tr>
+				</thead>
+				<tbody id="questions">
+				</tbody>
+			</table>
+			<div id="center-display">
+			</div>
+			<table>
+				<thead>
+					<tr>
+						<td>Player Name</td>
+						<td>Score</td>
+						<td>Status</td>
+					</tr>
+				</thead>
+				<tbody id="board-player-list">
+				</tbody>
+			</table>
 		</div>
 		<script type="text/javascript">
 			Jeopardy.Vestibule.Controller.initialize (

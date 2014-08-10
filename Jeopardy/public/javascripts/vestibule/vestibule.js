@@ -17,6 +17,11 @@ Jeopardy.Vestibule.Controller = (function () {
 		view.displayControls ("READY");
 	};
 	
+	var handleGameStarting = function (data) {
+		view.displayBoard ();
+		Jeopardy.Board.Controller.initialize (self.playerId, websocket, Jeopardy.Board.View);
+	};
+	
 	var convertToWebSocketUrl = function (location) {
 		return location.replace ('http', 'ws') + "/wsinit"
 	};
@@ -28,7 +33,8 @@ Jeopardy.Vestibule.Controller = (function () {
 			close: function () {view.closed ();},
 			events: {
 				playerList: function (data) {handlePlayerList (data);},
-				signedIn: function (data) {handleSignedIn (data);}
+				signedIn: function (data) {handleSignedIn (data);},
+				gameStarting: function (data) {handleGameStarting (data);}
 			}
 		});
 	}
@@ -126,6 +132,11 @@ Jeopardy.Vestibule.View = (function () {
 				'</tr>'
 			);
 		});
+	};
+	
+	self.displayBoard = function () {
+		$('#vestibule-page-content').hide ();
+		$('#board-page-content').show ();
 	};
 	
 	return self;

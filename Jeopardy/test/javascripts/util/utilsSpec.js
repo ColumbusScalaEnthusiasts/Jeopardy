@@ -80,7 +80,7 @@ describe ("Jeopardy.Utils.websocket, when its environment is mocked out", functi
 			});
 		});
 		
-		describe ("and the underlying WebSocket receives an unexpected message", function () {
+		describe ("and the underlying WebSocket receives a non-JSON message", function () {
 			
 			beforeEach (function () {
 				spyOn (window.console, "log");
@@ -88,7 +88,44 @@ describe ("Jeopardy.Utils.websocket, when its environment is mocked out", functi
 			});
 			
 			it ("ignores the message and logs about it", function () {
-				expect (window.console.log).toHaveBeenCalledWith ('Discarding WebSocket message: "Nobody expects the Spanish Inquisition!"');
+				expect (window.console.log).toHaveBeenCalledWith ('Discarding non-JSON WebSocket message: "Nobody expects the Spanish Inquisition!"');
+			});
+		});
+		
+		describe ("and the event handlers are replaced", function () {
+			
+			var replacementEvents = null;
+			
+			beforeEach (function () {
+				replacementEvents = {
+					chanukah: function (data) {output = data.message}
+				};
+				
+				websocket.replaceEvents (replacementEvents);
+			});
+			
+			describe ("and an event that would have been handled previously is received", function () {
+				
+				beforeEach (function () {
+					spyOn (window.console, "log");
+					mockWebSocket.onmessage ({data: JSON.stringify ({type: "christmas", data: {message: "Merry Christmas!"}})});
+				});
+					
+				it ("logs about the message", function () {
+					expect (window.console.log).toHaveBeenCalledWith ('Discarding unexpected WebSocket message: "' + 
+							JSON.stringify ({type: "christmas", data: {message: "Merry Christmas!"}}) + '"');
+				});
+			});
+				
+			describe ("and an event handled by the new event handlers is received", function () {
+				
+				beforeEach (function () {
+					mockWebSocket.onmessage ({data: JSON.stringify ({type: "chanukah", data: {message: "Happy Chanukah!"}})});
+				});
+				
+				it ("calls the new handler", function () {
+					expect (output).toBe ("Happy Chanukah!");
+				});
 			});
 		});
 	});

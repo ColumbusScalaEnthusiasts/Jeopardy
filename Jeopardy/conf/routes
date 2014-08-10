@@ -3,11 +3,9 @@
 # ~~~~
 
 # Home page
-GET     /                                controllers.Application.index
-GET		/vestibule						 controllers.vestibule.Vestibule.index
-GET     /vestibule/wsinit				 controllers.vestibule.Vestibule.wsinit
-GET     /mobileWebSocket                 controllers.Application.mobileWebSocket
-GET     /dashboardWebSocket              controllers.Application.dashboardWebSocket
+GET     /                              	controllers.vestibule.Vestibule.index
+GET		/vestibule						controllers.vestibule.Vestibule.index
+GET     /vestibule/wsinit				controllers.vestibule.Vestibule.wsinit
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET     /assets/*file               	controllers.Assets.at(path="/public", file)
