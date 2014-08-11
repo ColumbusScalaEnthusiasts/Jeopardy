@@ -54,7 +54,7 @@ describe ("A Vestibule Controller, initialized with mocks", function () {
 		});
 		
 		it ("with the expected URL", function () {
-			expect (url).toBe ("ws://base.url/wsinit");
+			expect (url).toBe ("ws://base.url/vestibule/wsinit");
 		});
 		
 		describe ("with an open callback that, when called", function () {

@@ -24,6 +24,7 @@ class VestibulePlugin extends RouterPlugin {
   }
   
   override def handleIncomingMessage (msgType: String, msgData: JsValue) {
+System.err.println (s"Handling incoming ${msgType} msg: ${msgData}")
     msgType match {
       case "signIn" => handleSignIn (field (msgData, "name"))
       case "ready" => handleReady ()
@@ -33,6 +34,7 @@ class VestibulePlugin extends RouterPlugin {
   }
   
   override def handleOutgoingMessage (msg: Any) {
+System.err.println (s"Handling outgoing message: ${msg}")
     msg match {
       case m: SignedIn => handleSignedIn (m)
       case m: PlayerList => handlePlayerList (m)

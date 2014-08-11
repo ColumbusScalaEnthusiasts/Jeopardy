@@ -15,10 +15,10 @@ trait Vestibule {
   var vestibuleHandler = VestibuleHandler (Akka.system)
   
   def index = Action {
-    Ok(views.html.page())
+    Ok(views.html.page ())
   }
 
-  // TODO: Dunno how to test this
+  // TODO: Dunno how to unit test this
   def wsinit = WebSocket.acceptWithActor[JsValue, JsValue] {request => out => 
     Props (new PlayerSocketRouter (vestibuleHandler, out))
   }

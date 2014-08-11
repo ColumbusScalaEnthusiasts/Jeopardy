@@ -23,7 +23,10 @@ Jeopardy.Vestibule.Controller = (function () {
 	};
 	
 	var convertToWebSocketUrl = function (location) {
-		return location.replace ('http', 'ws') + "/wsinit"
+		var match = /http(:\/\/[^\/]*)/.exec (location);
+		if (!match) {throw "Can't open WebSocket from URL: " + location;}
+		var baseUrl = match[1];
+		return "ws" + baseUrl + "/vestibule/wsinit";
 	};
 	
 	var makeWebSocket = function (location) {
@@ -65,7 +68,7 @@ Jeopardy.Vestibule.Controller = (function () {
 	self.signOut = function () {
 		websocket.send ("signOut", {});
 		view.updatePlayers ({players: []});
-		view.displayControls ("START");
+		view.displayControls ("SIGNIN");
 	};
 	
 	return self;
