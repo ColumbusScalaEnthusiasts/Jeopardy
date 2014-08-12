@@ -149,3 +149,80 @@ describe ("A Board controller, initialized with mocks,", function () {
 		});
 	});
 });
+
+describe ("A Board View, initialized,", function () {
+	var subject = null;
+	var controller = null;
+	
+	beforeEach (function () {
+		$('body').append (
+			'<div id="board-page-content">\n' +
+			'	<table>\n' +
+			'		<thead>\n' +
+			'			<tr id="categories">\n' +
+			'			</tr>\n' +
+			'		</thead>\n' +
+			'		<tbody id="questions">\n' +
+			'		</tbody>\n' +
+			'	</table>\n' +
+			'	<div id="center-display">\n' +
+			'	</div>\n' +
+			'	<table>\n' +
+			'		<thead>\n' +
+			'			<tr>\n' +
+			'				<td>Player Name</td>\n' +
+			'				<td>Score</td>\n' +
+			'				<td>Status</td>\n' +
+			'			</tr>\n' +
+			'		</thead>\n' +
+			'		<tbody id="board-player-list">\n' +
+			'		</tbody>\n' +
+			'	</table>\n' +
+			'</div>\n'
+		);
+		subject = Jeopardy.Board.View;
+		controller = {
+		};
+		
+		subject.initialize (controller);
+	});
+	
+	afterEach (function () {
+		$('#board-page-content').remove ();
+	});
+	
+	describe ("and given a board update", function () {
+		
+		beforeEach (function () {
+			var update = [
+			    {
+			    	category: {id: 101, name: "Things Not to Drink"},
+			    	questions: [
+			    	    {id: 201, value: 200},
+			    	    {id: 202, value: 400}
+			    	]
+			    },
+			    {
+			    	category: {id: 102, name: "Things Not to Eat"},
+			    	questions: [
+			    	    {id: 203, value: 200},
+			    	    {id: 204, value: 400}
+			    	]
+			    }
+			];
+			subject.updateBoard (update);
+		});
+		
+		it ("sets up categories correctly", function () {
+			expect ($("#categories #category-101").html ()).toBe ("Things Not to Drink");
+			expect ($("#categories #category-102").html ()).toBe ("Things Not to Eat");
+		});
+		
+		it ("sets up questions correctly", function () {
+			expect ($("#questions #question-201").html ()).toBe ("200");
+			expect ($("#questions #question-202").html ()).toBe ("400");
+			expect ($("#questions #question-203").html ()).toBe ("200");
+			expect ($("#questions #question-204").html ()).toBe ("400");
+		});
+	});
+});

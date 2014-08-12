@@ -72,3 +72,43 @@ Jeopardy.Board.Controller = (function () {
 	
 	return self;
 }) ();
+
+Jeopardy.Board.View = (function () {
+	var self = {};
+	
+	var updateCategories = function (categories) {
+		var headings = _.map (categories, function (category) {
+			return '<td id="category-' + category.id + '" class="category-name">' + category.name + '</td>';
+		});
+		var html = headings.join ("");
+		$("#categories").html (html);
+	};
+	
+	var updateQuestions = function (questionRows) {
+		var html = _.map (questionRows, function (row) {
+			var cells = _.map (row, function (question) {
+				return '<td id="question-' + question.id + '" class="question-value">' + question.value + '</td>';
+			});
+			return '<tr>' + cells.join ("") + '</tr>';
+		});
+		$("#questions").html (html);
+	};
+	
+	self.initialize = function (controller) {
+		
+	};
+	
+	self.updateBoard = function (boardUpdate) {
+		updateCategories (_.map (boardUpdate, function (column) {return column.category}));
+		var questionRows = _.map (boardUpdate[0].questions, function (dummy, index) {
+			return _.map (boardUpdate, function (column) {return column.questions[index];});
+		});
+		updateQuestions (questionRows);
+	};
+	
+	self.displayUserStatus = function () {
+		throw "Test-drive me!";
+	};
+	
+	return self;
+}) ();

@@ -24,8 +24,18 @@ class PlayerSocketRouter (var backEndHandler: ActorRef, outputSocket: ActorRef) 
   override def receive = {
     case msg: Relay => msg.target ! msg.msg
     case msg: InstallPluginAndBackEnd => handleInstallPlugin (msg.plugin, msg.backEndHandlerOpt)
-    case msg: JsValue => plugin.handleIncomingMessage((msg \ "type").as[String], (msg \ "data"))
-    case msg => plugin.handleOutgoingMessage (msg)
+    case msg: JsValue => handleIncomingMessage((msg \ "type").as[String], (msg \ "data"))
+    case msg => handleOutgoingMessage (msg)
+  }
+  
+  private def handleIncomingMessage (msgType: String, msgData: JsValue) {
+System.out.println (s"Received ${msgType}: ${msgData}")
+    plugin.handleIncomingMessage (msgType, msgData)
+  }
+  
+  private def handleOutgoingMessage (msg: Any) {
+    plugin.handleOutgoingMessage (msg)
+System.out.println (s"Sent ${msg}")
   }
   
   private def handleInstallPlugin (plugin: RouterPlugin, backEndHandlerOpt: Option[ActorRef]) {
