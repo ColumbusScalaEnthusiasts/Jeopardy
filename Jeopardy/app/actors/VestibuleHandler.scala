@@ -13,6 +13,7 @@ import services.routerplugins.PlayerList
 import services.routerplugins.GameStarting
 import services.routerplugins.BoardPlugin
 import services.board.BoardSelectorService
+import services.board.BoardSelectorService
 
 object VestibuleHandler {
   def apply (system: ActorSystem): ActorRef = {
@@ -34,8 +35,9 @@ case class PlayerRecord (
 )
 
 class JeopardyBoardHandlerFactory {
-  def make (system: ActorSystem, multiplier: Int, players: List[ActivePlayerRecord]): ActorRef = {
-    null
+  def make (system: ActorSystem, boardSelector: BoardSelectorService, multiplier: Int, 
+      players: List[ActivePlayerRecord]): ActorRef = {
+    JeopardyBoardHandler (system, boardSelector, multiplier, players)
   }
 }
 
@@ -86,8 +88,9 @@ class VestibuleHandler extends Actor {
   }
   
   private def handleStartMsgForReadyPlayers (players: List[PlayerRecord]) {
-    // TODO: This will need to move to bootstrap code when we get a database
+    // TODO: The following line will need to move to bootstrap code when we get a database
     val boardSelector = new BoardSelectorService ()
+    
     val activePlayers = players.map {player =>
       ActivePlayerRecord (
         player.id,
@@ -97,7 +100,7 @@ class VestibuleHandler extends Actor {
         player.listener
       )
     }
-    val boardHandler = jeopardyBoardHandlerFactory.make (context.system, 200, activePlayers)
+    val boardHandler = jeopardyBoardHandlerFactory.make (context.system, boardSelector, 200, activePlayers)
     players.foreach {player => 
       player.listener ! GameStarting ()
       player.listener ! InstallPluginAndBackEnd (new BoardPlugin (), Some (boardHandler))

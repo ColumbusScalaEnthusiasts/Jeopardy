@@ -194,7 +194,7 @@ describe ("A Vestibule Controller, initialized with mocks", function () {
 	});
 });
 
-describe ("A Vestibule View, initialized", function () {
+describe ("An initialized Vestibule View", function () {
 	var panelIds = ["sign-in-panel", "ready-panel", "start-panel", "sign-out-panel"];
 	var subject = null;
 	var controller = null;

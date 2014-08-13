@@ -78,12 +78,15 @@ Jeopardy.Vestibule.View = (function () {
 	
 	var self = {};
 	
-	var panelIds = ["sign-in-panel", "ready-panel", "start-panel", "sign-out-panel"];
+	var panelIds = {
+		signInPanel: "sign-in-panel", readyPanel: "ready-panel", 
+		startPanel: "start-panel", signOutPanel: "sign-out-panel"
+	};
 	
 	var controlSets = {
-		"SIGNIN": ["sign-in-panel"], 
-		"READY": ["ready-panel", "sign-out-panel"], 
-		"START": ["start-panel", "sign-out-panel"]
+		"SIGNIN": ["signInPanel"], 
+		"READY": ["readyPanel", "signOutPanel"], 
+		"START": ["startPanel", "signOutPanel"]
 	};
 	
 	var wireInControls = function () {
@@ -113,9 +116,9 @@ Jeopardy.Vestibule.View = (function () {
 	
 	self.displayControls = function (controlsName) {
 		var controlSet = controlSets[controlsName];
-		_.each (panelIds, function (panelId) {
+		_.each (panelIds, function (panelId, key) {
 			var object = $('#' + panelId);
-			if (_.contains (controlSet, panelId)) {
+			if (_.contains (controlSet, key)) {
 				object.show ();
 			}
 			else {

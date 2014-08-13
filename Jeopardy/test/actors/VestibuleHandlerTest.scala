@@ -16,12 +16,15 @@ import akka.actor.ActorRef
 import services.routerplugins.GameStarting
 import services.routerplugins.BoardPlugin
 import org.mockito.Mockito._
+import org.mockito.Matchers
+import services.board.BoardSelectorService
 
 @DoNotDiscover
 @RunWith(classOf[JUnitRunner])
 class VestibuleHandlerTest extends FunSpec {
+  val system = ActorSystem ()
+  
   describe ("A VestibuleHandler") {
-    val system = ActorSystem ()
     val subject = TestActorRef[VestibuleHandler] (Props (classOf[VestibuleHandler]))(system)
     
     describe ("when Tommy registers via NewConnection") {
@@ -103,10 +106,9 @@ class VestibuleHandlerTest extends FunSpec {
                     )
                     val boardHandler = mock (classOf[ActorRef])
                     val factory = mock (classOf[JeopardyBoardHandlerFactory])
-                    when (factory.make (system, 200, activePlayers)).thenReturn (boardHandler)
-                    subject.underlyingActor.jeopardyBoardHandlerFactory = mock (classOf[JeopardyBoardHandlerFactory])
-                    when (subject.underlyingActor.jeopardyBoardHandlerFactory.make (system, 200, activePlayers)).
-                      thenReturn (boardHandler)
+                    when (factory.make (Matchers.eq (system), Matchers.any (classOf[BoardSelectorService]), 
+                        Matchers.eq (200), Matchers.eq (activePlayers))).thenReturn (boardHandler)
+                    subject.underlyingActor.jeopardyBoardHandlerFactory = factory
                     receiveFrontEndMessage (tommy, subject, StartMsg ())
                     
                     it ("sends a slimmed-down player list to Valentina") {
@@ -122,7 +124,6 @@ class VestibuleHandlerTest extends FunSpec {
                     }
                     
                     it ("sends GameStarting and installation messages to Tommy and Ursula") {
-                      verify (subject.underlyingActor.jeopardyBoardHandlerFactory).make (system, 200, activePlayers)
                       verifyMessages (tommy)
                       verifyMessages (ursula)
                     }
@@ -144,9 +145,21 @@ class VestibuleHandlerTest extends FunSpec {
         }
       }
     }
-    
-    system.shutdown ()
   }
+  
+  describe ("A JeopardyBoardHandlerFactory") {
+    val factory = new JeopardyBoardHandlerFactory ()
+    
+    describe ("when instructed to make a JeopardyBoardHandler") {
+      val result = factory.make (system, null, 0, Nil)
+      
+      it ("does so, as far as anybody can tell") {
+        assert (classOf[ActorRef].isAssignableFrom (result.getClass))
+      }
+    }
+  }
+  
+  system.shutdown ()
   
   private def receiveFrontEndMessage (sender: TestActorRef[Recorder], recipient: ActorRef, msg: Any) {
     sender.underlyingActor.relay (recipient, msg)
