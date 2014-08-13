@@ -35,7 +35,7 @@ Jeopardy.Utils = function () {
 		
 		socket.onopen = params.open;
 		socket.onclose = params.close;
-		if (params.events) {socket.onmessage = onMessage};
+		if (params.events) {socket.onmessage = onMessage;}
 		
 		ws.send = function (type, data) {
 			var msg = JSON.stringify ({type: type, data: data});
