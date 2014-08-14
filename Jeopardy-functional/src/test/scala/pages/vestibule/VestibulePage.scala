@@ -14,30 +14,29 @@ class VestibulePage extends Page {
   }
   
   def setPlayerName (name: String) {
-    driver.findElement (By.id ("player-name")).sendKeys (name)
+    sendKeys (By.id ("player-name"), name)
   }
   
   def signIn () {
-    driver.findElement (By.id ("sign-in-button")).click ()
+    click (By.id ("sign-in-button"))
   }
   
   def ready () {
-    driver.findElement (By.id ("ready-button")).click ()
+    click (By.id ("ready-button"))
   }
   
   def signOut () {
-    driver.findElement (By.id ("sign-out-button")).click ()
+    click (By.id ("sign-out-button"))
   }
   
   def playersPresent: List[Player] = {
-    val playerInfo = driver.findElements (By.xpath ("""//tr[@class="player-info"]""")).asScala.toList
-    playerInfo.map {info =>
+    findElements (By.xpath ("""//tr[@class="player-info"]""")) {_.map {info =>
       val regMatch = """player-info-(\d+)$""".r.findFirstMatchIn(info.getAttribute ("id")).get
       val id = regMatch.group (1);
       Player (
-        driver.findElement (By.id (s"player-name-${id}")).getText (),
-        driver.findElement (By.id (s"player-status-${id}")).getText ()
+        text (By.id (s"player-name-${id}")),
+        text (By.id (s"player-status-${id}"))
       )
-    }
+    }}
   }
 }
