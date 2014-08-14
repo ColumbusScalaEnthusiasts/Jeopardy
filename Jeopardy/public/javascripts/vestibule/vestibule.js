@@ -35,9 +35,9 @@ Jeopardy.Vestibule.Controller = (function () {
 			open: function () {view.displayControls ("SIGNIN");},
 			close: function () {view.closed ();},
 			events: {
-				playerList: function (data) {handlePlayerList (data);},
-				signedIn: function (data) {handleSignedIn (data);},
-				gameStarting: function (data) {handleGameStarting (data);}
+				playerList: handlePlayerList,
+				signedIn: handleSignedIn,
+				gameStarting: handleGameStarting
 			}
 		});
 	}

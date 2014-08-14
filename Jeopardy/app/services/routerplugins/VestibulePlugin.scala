@@ -25,7 +25,7 @@ class VestibulePlugin extends RouterPlugin {
   
   override def handleIncomingMessage (msgType: String, msgData: JsValue) {
     msgType match {
-      case "signIn" => handleSignIn (field (msgData, "name"))
+      case "signIn" => handleSignIn ((msgData \ "name").as[String])
       case "ready" => handleReady ()
       case "start" => handleStart ()
       case "signOut" => handleSignOut ()
