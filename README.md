@@ -4,7 +4,7 @@ Jeopardy
 A group coding project for the Columbus Scala Enthusiasts group.
 
 
-Jasmine
+Karma/Jasmine
 =======
 
 To run Jasmine tests automagically you'll need a node installation.
