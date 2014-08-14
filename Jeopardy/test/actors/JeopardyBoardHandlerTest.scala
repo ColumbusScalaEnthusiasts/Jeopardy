@@ -53,14 +53,14 @@ class JeopardyBoardHandlerTest extends FunSpec {
     
     describe ("when Jeffy chooses an available question") {
       clearRecorders (jeffy, chubs)
-      receiveFrontEndMessage (jeffy, subject, ChooseQuestion (2, 3))
+      receiveFrontEndMessage (jeffy, subject, ChooseQuestion (304L))
       
       it ("sends an AskQuestion message to Jeffy") {
-        assert (findSentMessage[AskQuestion] (jeffy) === AskQuestion (2, 3, "Category 3, question 4"))
+        assert (findSentMessage[AskQuestion] (jeffy) === AskQuestion (304L, "Category 3, question 4"))
       }
       
       it ("sends an AskQuestion message to Chubs") {
-        assert (findSentMessage[AskQuestion] (chubs) === AskQuestion (2, 3, "Category 3, question 4"))
+        assert (findSentMessage[AskQuestion] (chubs) === AskQuestion (304L, "Category 3, question 4"))
       }
       
       describe ("and Chubs and Jeffy buzz in almost together") {
@@ -80,7 +80,7 @@ class JeopardyBoardHandlerTest extends FunSpec {
     
     describe ("when Chubs tries to choose an available question") {
       clearRecorders (chubs)
-      receiveFrontEndMessage (chubs, subject, ChooseQuestion (2, 3))
+      receiveFrontEndMessage (chubs, subject, ChooseQuestion (304L))
       
       it ("ignores him because he's not InControlStatus") {
         assertNothingSent (chubs)
@@ -123,7 +123,7 @@ class JeopardyBoardHandlerTest extends FunSpec {
   
   private def receiveFrontEndMessage (player: ActivePlayerRecord, subject: ActorRef, msg: Any) {
     val recorder = (player.listener).asInstanceOf[TestActorRef[Recorder]].underlyingActor
-    recorder.relay  (subject, msg)
+    recorder.relay (subject, msg)
   }
   
   private def makeTestBoard (multiplier: Int): Board = {

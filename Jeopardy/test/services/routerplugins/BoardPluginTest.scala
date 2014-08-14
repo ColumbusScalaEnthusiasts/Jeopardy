@@ -100,7 +100,7 @@ class BoardPluginTest extends FunSpec {
     }
 
     describe ("and sent an AskQuestion message from the back end") {
-      val askQuestion = AskQuestion (3, 4, "How high is up?")
+      val askQuestion = AskQuestion (34L, "How high is up?")
       router.underlyingActor.erase()
       subject.handleOutgoingMessage(askQuestion)
       
@@ -109,7 +109,7 @@ class BoardPluginTest extends FunSpec {
 {
 	"type": "askQuestion",
   "data": {
-    "categoryIndex": 3, "rowIndex": 4, "text": "How high is up?"
+    "id": 34, "text": "How high is up?"
   }
 }
 """)
@@ -154,15 +154,14 @@ class BoardPluginTest extends FunSpec {
     describe ("and sent a ChooseQuestion message from the front end") {
       val data = Json.parse ("""
 {
-	"categoryIndex": 4,
-	"rowIndex": 3
+	"id": 29
 }
 """)
       router.underlyingActor.erase()
       subject.handleIncomingMessage("chooseQuestion", data)
       
       it ("translates it correctly from JSON for the back end") {
-        val msg = ChooseQuestion (4, 3)
+        val msg = ChooseQuestion (29L)
         assert (router.underlyingActor.getRecording === List (Relay (msg, backEndHandler)))
       }
     }

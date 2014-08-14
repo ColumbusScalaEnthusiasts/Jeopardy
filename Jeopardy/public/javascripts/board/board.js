@@ -27,21 +27,7 @@ Jeopardy.Board.Controller = (function () {
 	
 	var handleAskQuestion = function (askQuestion) {
 		_.each (boardStatus.players, function (player) {player.status = "WaitingForBuzzStatus";});
-		view.showQuestionAndBuzzer (askQuestion.categoryIndex, askQuestion.rowIndex, askQuestion.text);
-	};
-	
-	var findQuestion = function (questionId) {
-		var categoryIndex = null;
-		var rowIndex = null;
-		_.each (boardStatus.columns, function (column, cIdx) {
-			_.each (column.questions, function (question, qIdx) {
-				if (question.id === questionId) {
-					categoryIndex = cIdx;
-					rowIndex = qIdx;
-				}
-			});
-		});
-		return {categoryIndex: categoryIndex, rowIndex: rowIndex};
+		view.showQuestionAndBuzzer (askQuestion.id, askQuestion.text);
 	};
 	
 	var eventHandlers = {
@@ -61,8 +47,7 @@ Jeopardy.Board.Controller = (function () {
 	self.chooseQuestion = function (questionId) {
 		if (findUserPlayer ().status !== "InControlStatus") {return;}
 		view.displayUserStatus ("WaitingForChoiceStatus");
-		var coordinates = findQuestion (questionId);
-		websocket.send ("chooseQuestion", {categoryIndex: coordinates.categoryIndex, rowIndex: coordinates.rowIndex});
+		websocket.send ("chooseQuestion", {id: questionId});
 	};
 	
 	self.buzz = function () {

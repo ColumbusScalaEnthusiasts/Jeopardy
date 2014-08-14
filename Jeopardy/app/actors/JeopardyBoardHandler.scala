@@ -19,7 +19,7 @@ case object WaitingForBuzzStatus extends ActivePlayerStatus {}
 case object BuzzWinnerStatus extends ActivePlayerStatus {}
 case object BuzzLoserStatus extends ActivePlayerStatus {}
 
-case class ChooseQuestion (val categoryIndex: Int, val rowIndex: Int)
+case class ChooseQuestion (id: Long)
 
 case class Buzz ()
 
@@ -60,10 +60,17 @@ class JeopardyBoardHandler (boardSelector: BoardSelectorService, multiplier: Int
   private def handleChooseQuestion (msg: ChooseQuestion) {
     val player = findPlayer (sender, msg)
     if (player.status != InControlStatus) {return}
-    val question = board.columns (msg.categoryIndex).questions (msg.rowIndex)
-    players.foreach {player =>
-      player.status = WaitingForBuzzStatus
-      player.listener ! AskQuestion (msg.categoryIndex, msg.rowIndex, question.text)
+    val questionColumns = board.columns.map {column => column.questions}
+    val questions = questionColumns.flatten
+    val questionOpt = questions.find {question => question.id == msg.id}
+    questionOpt match {
+      case Some (question) => {
+        players.foreach {player =>
+          player.status = WaitingForBuzzStatus
+          player.listener ! AskQuestion (msg.id, question.text)
+        }
+      }
+      case None => throw new IllegalArgumentException (s"Found questions with IDs ${questions.map {question => question.id}}, but no question with ID ${msg.id}")
     }
   }
   

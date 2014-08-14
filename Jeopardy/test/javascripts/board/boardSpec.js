@@ -80,7 +80,7 @@ describe ("A Board controller, initialized with mocks,", function () {
 			});
 			
 			it ("relays the chosen question to the back end", function () {
-				expect (websocket.send).toHaveBeenCalledWith ("chooseQuestion", {categoryIndex: 1, rowIndex: 0});
+				expect (websocket.send).toHaveBeenCalledWith ("chooseQuestion", {id: 203});
 			});
 			
 			it ("removes Mike from control", function () {
@@ -102,11 +102,11 @@ describe ("A Board controller, initialized with mocks,", function () {
 		describe ("and a question is asked", function () {
 			
 			beforeEach (function () {
-				boardHandlers.askQuestion ({categoryIndex: 0, rowIndex: 1, text: "Black, gritty, and viscous"});
+				boardHandlers.askQuestion ({id: 202, text: "Black, gritty, and viscous"});
 			});
 			
 			it ("instructs view to show question and buzzer", function () {
-				expect (view.showQuestionAndBuzzer).toHaveBeenCalledWith (0, 1, "Black, gritty, and viscous");
+				expect (view.showQuestionAndBuzzer).toHaveBeenCalledWith (id: 202, "Black, gritty, and viscous");
 			});
 			
 			describe ("and Mike hits the buzzer", function () {

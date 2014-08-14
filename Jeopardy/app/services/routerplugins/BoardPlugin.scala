@@ -31,7 +31,7 @@ case class Question (
 		value: Int
 )
 
-case class AskQuestion (categoryIndex: Int, rowIndex: Int, text: String)
+case class AskQuestion (id: Long, text: String)
 
 case class QuestionClaimed (buzzWinnerId: Long)
 
@@ -41,8 +41,7 @@ class BoardPlugin extends RouterPlugin {
   
   override def handleIncomingMessage (msgType: String, msgData: JsValue) {
     msgType match {
-      case "chooseQuestion" => handleChooseQuestion (intField (msgData, "categoryIndex"), 
-          intField (msgData, "rowIndex"))
+      case "chooseQuestion" => handleChooseQuestion (longField (msgData, "id")) 
       case "buzz" => handleBuzz ()
     }
   }
@@ -56,8 +55,8 @@ class BoardPlugin extends RouterPlugin {
     }
   }
   
-  private def handleChooseQuestion (categoryIndex: Int, rowIndex: Int) {
-    send (ChooseQuestion (categoryIndex, rowIndex), backEndHandler)
+  private def handleChooseQuestion (id: Long) {
+    send (ChooseQuestion (id), backEndHandler)
   }
   
   private def handleBuzz () {
@@ -99,8 +98,7 @@ class BoardPlugin extends RouterPlugin {
     val json = new JsObject (List (
       ("type", new JsString ("askQuestion")),
       ("data", new JsObject (List (
-        ("categoryIndex", new JsNumber (msg.categoryIndex)),
-        ("rowIndex", new JsNumber (msg.rowIndex)),
+        ("id", new JsNumber (msg.id)),
         ("text", new JsString (msg.text))
       )))
     ))
