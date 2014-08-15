@@ -7,74 +7,62 @@ import model.vestibule.Vestibule
 import specs.JeopardyFunctional
 import org.scalatest.junit.JUnitRunner
 import pages.vestibule.Player
+import model.board.Board
 
 @RunWith (classOf[JUnitRunner])
 class VestibuleBehavior extends FunSuite with JeopardyFunctional {
-    
-      test ("Player enters vestibule with nobody else around") {
-        val ctx = makeAnotherContext ()
-        var vestibule: Vestibule = null
+          
+  test ("The Vestibule, already occupied, is entered by another player who then makes ready") {
+    val billyContext = makeAnotherContext ()
+    var billyVestibule: Vestibule = null
+    val annieContext = makeAnotherContext ()
+    var annieVestibule: Vestibule = null
+    try {
+      annieVestibule = new Vestibule ()(annieContext)
+      annieVestibule.enterViaIndex()
+      annieVestibule.signIn ("Annie")
+      
+      try {
+        billyVestibule = new Vestibule ()(billyContext)
+        billyVestibule.enterDirectly ()
+        billyVestibule.signIn ("Billy")
+        billyVestibule.ready ()
+        
         try {
-          vestibule = new Vestibule ()(ctx)
-          vestibule.enterViaIndex ()
-  
-          assert (vestibule.playersPresent === Nil)
+          var expectedPlayers = List (Player ("Annie", "signedIn"), Player ("Billy", "ready"))
+          assert (billyVestibule.playersPresent == expectedPlayers)
+          assert (annieVestibule.playersPresent == expectedPlayers)
           
-          vestibule.signIn ("Billy")
+          annieVestibule.ready ()
           
-          try {
-            val playersPresent = vestibule.playersPresent
-            val billy = playersPresent.head
-            assert (billy.name === "Billy")
-            assert (playersPresent.size === 1)
-          }
-          finally {
-            vestibule.signOut ()
-          }
+          expectedPlayers = List (Player ("Annie", "ready"), Player ("Billy", "ready"))
+          assert (billyVestibule.playersPresent == expectedPlayers)
+          assert (annieVestibule.playersPresent == expectedPlayers)
         }
-        finally {
-          ctx.close ()
+        catch {
+          case e: Exception => billyVestibule.signOut (); throw e
         }
       }
-      
-      test ("The Vestibule, already occupied, is entered by another player who then makes ready") {
-        val oneContext = makeAnotherContext ()
-        var oneVestibule: Vestibule = null
-        val anotherContext = makeAnotherContext ()
-        var anotherVestibule: Vestibule = null
-        try {
-          anotherVestibule = new Vestibule ()(anotherContext)
-          anotherVestibule.enterDirectly ()
-          anotherVestibule.signIn ("Annie")
+      catch {
+        case e: Exception => annieVestibule.signOut (); throw e
+      }
           
-          try {
-            oneVestibule = new Vestibule ()(oneContext)
-            oneVestibule.enterDirectly ()
-            oneVestibule.signIn ("Billy")
-            oneVestibule.ready ("Billy")
-            
-            try {
-              val expectedPlayers = List (Player ("Annie", "signedIn"), Player ("Billy", "ready"))
-              assert (oneVestibule.playersPresent == expectedPlayers)
-              assert (anotherVestibule.playersPresent == expectedPlayers)
-            }
-            finally {
-              oneVestibule.signOut ()
-            }
-          }
-          finally {
-            anotherVestibule.signOut ()
-          }
-        }
-        finally {
-          anotherContext.close ();
-          oneContext.close ();
-        }
-        
-        def playersAppear (expectedNames: List[String], vestibule: Vestibule) {
-          val playersPresent = vestibule.playersPresent
-          val actualNames = playersPresent.map {_.name}
-          assert (actualNames === expectedNames)
-        }
+      annieVestibule.start ()
+      
+      val billyBoard = new Board ()(billyContext)
+      assert (billyBoard.isDisplayed ())
+      val annieBoard = new Board ()(annieContext)
+      assert (annieBoard.isDisplayed ())
     }
+    finally {
+      annieContext.close ();
+      billyContext.close ();
+    }
+    
+    def playersAppear (expectedNames: List[String], vestibule: Vestibule) {
+      val playersPresent = vestibule.playersPresent
+      val actualNames = playersPresent.map {_.name}
+      assert (actualNames === expectedNames)
+    }
+  }
 }

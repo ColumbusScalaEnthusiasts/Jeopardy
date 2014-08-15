@@ -21,37 +21,8 @@ trait Page {
   implicit protected def driver = context.driver
   protected def baseUrl = context.baseUrl
   
-  private def keepTrying[P, Q] (x: P)(f: P => Q): Q = {
-    try {
-      f (x)
-    }
-    catch {
-      case e: StaleElementReferenceException => keepTrying (x)(f)
-    }
-  }
-  
-  def findElement[T] (context: SearchContext, selector: By) (action: WebElement => T): T = {
-    keepTrying ((context, selector)){case (c, s) => {
-      val objective = c.findElement (s)
-      action (objective)
-    }}
-  }
-  
-  def findElement[T] (selector: By) (action: WebElement => T): T = {
-    findElement (driver, selector) (action)
-  }
-  
-  def findElements[T] (context: SearchContext, selector: By) (action: List[WebElement] => T): T = {
-    keepTrying ((context, selector)){case (c, s) => {
-      val objectives = c.findElements (s).asScala.toList
-      action (objectives)
-    }}
-  }
-  
-  def findElements[T] (selector: By) (action: List[WebElement] => T): T = {
-    findElements (driver, selector) (action)
-  }
-  
+  def isDisplayed: Boolean = throw new UnsupportedOperationException ()
+    
   def click (context: SearchContext, selector: By): Unit = {
     findElement (context, selector) {element => element.click ()}
   }
@@ -69,4 +40,41 @@ trait Page {
   }
   
   def text (selector: By): String = text (driver, selector)
+  
+  def isDisplayed (context: SearchContext, selector: By): Boolean = {
+    findElement (context, selector) {element => element.isDisplayed ()}
+  }
+  
+  def isDisplayed (selector: By): Boolean = isDisplayed (driver, selector)
+
+  protected def findElement[T] (context: SearchContext, selector: By) (action: WebElement => T): T = {
+    keepTrying ((context, selector)){case (c, s) => {
+      val objective = c.findElement (s)
+      action (objective)
+    }}
+  }
+  
+  protected def findElement[T] (selector: By) (action: WebElement => T): T = {
+    findElement (driver, selector) (action)
+  }
+  
+  protected def findElements[T] (context: SearchContext, selector: By) (action: List[WebElement] => T): T = {
+    keepTrying ((context, selector)){case (c, s) => {
+      val objectives = c.findElements (s).asScala.toList
+      action (objectives)
+    }}
+  }
+  
+  protected def findElements[T] (selector: By) (action: List[WebElement] => T): T = {
+    findElements (driver, selector) (action)
+  }
+  
+  private def keepTrying[P, Q] (x: P)(f: P => Q): Q = {
+    try {
+      f (x)
+    }
+    catch {
+      case e: StaleElementReferenceException => keepTrying (x)(f)
+    }
+  }
 }

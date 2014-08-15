@@ -21,9 +21,14 @@ class Vestibule (implicit context: ContextPackage) {
     page.signIn ()
   }
   
-  def ready (name: String) {
+  def ready () {
     val page = Page (classOf[VestibulePage])
     page.ready ()
+  }
+  
+  def start () {
+    val page = Page (classOf[VestibulePage])
+    page.start ()
   }
   
   def signOut () {

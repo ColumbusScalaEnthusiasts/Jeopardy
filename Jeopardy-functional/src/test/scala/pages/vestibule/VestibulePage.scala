@@ -25,6 +25,10 @@ class VestibulePage extends Page {
     click (By.id ("ready-button"))
   }
   
+  def start () {
+    click (By.id ("start-button"))
+  }
+  
   def signOut () {
     click (By.id ("sign-out-button"))
   }
