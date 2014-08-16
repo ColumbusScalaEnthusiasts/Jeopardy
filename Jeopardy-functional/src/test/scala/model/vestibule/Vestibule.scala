@@ -4,8 +4,9 @@ import specs.ContextPackage
 import pages.vestibule.VestibulePage
 import pages.vestibule.Player
 import pages.Page
+import model.ScreenWithListedPlayers
 
-class Vestibule (implicit context: ContextPackage) {
+class Vestibule (implicit context: ContextPackage) extends ScreenWithListedPlayers {
   
   def enterViaIndex () {
     Page (classOf[VestibulePage]).enterViaIndex ()
@@ -36,7 +37,7 @@ class Vestibule (implicit context: ContextPackage) {
     page.signOut ()
   }
   
-  def playersPresent: List[Player] = {
+  override def playersPresent: List[Player] = {
     Page (classOf[VestibulePage]).playersPresent
   }
 }

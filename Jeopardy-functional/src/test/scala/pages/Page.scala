@@ -46,6 +46,12 @@ trait Page {
   }
   
   def isDisplayed (selector: By): Boolean = isDisplayed (driver, selector)
+  
+  def getAttribute (context: SearchContext, selector: By, name: String): String = {
+    findElement (context, selector) {element => element.getAttribute (name)}
+  }
+  
+  def getAttribute (selector: By, name: String): String = getAttribute (driver, selector, name)
 
   protected def findElement[T] (context: SearchContext, selector: By) (action: WebElement => T): T = {
     keepTrying ((context, selector)){case (c, s) => {

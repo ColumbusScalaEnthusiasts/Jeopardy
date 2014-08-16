@@ -21,7 +21,7 @@ Jeopardy.Board.Controller = (function () {
 	var handleBoardStatus = function (boardStatusParam) {
 		boardStatus = boardStatusParam;
 		view.updateBoard (boardStatus.columns);
-		view.displayUserStatus (findUserPlayer ().status);
+		view.displayUserStatus (findUserPlayer ());
 		view.updateOpponents (findOpponents ());
 	};
 	
@@ -91,9 +91,31 @@ Jeopardy.Board.View = (function () {
 		updateQuestions (questionRows);
 	};
 	
-	self.displayUserStatus = function () {
-		throw "Test-drive me!";
+	var INSTRUCTIONS = {
+		InControlStatus: "Make your selection.",
+		WaitingForChoiceStatus: "Wait for a question to be chosen..."
 	};
+	
+	self.displayUserStatus = function (player) {
+		$('#user-player-name').html (player.name);
+		$('#user-player-score').html (player.score);
+		var instructions = $('#user-player-instructions');
+		instructions.attr ("status", player.status);
+		instructions.html (INSTRUCTIONS[player.status]);
+	};
+	
+	self.updateOpponents = function (opponents) {
+		var html = "";
+		_.each (opponents, function (opponent) {
+			html +=
+				'<tr class="opponent-row" id="opponent-row-' + opponent.id + '">' +
+				'<td class="opponent-name" id="opponent-name-' + opponent.id + '">' + opponent.name + '</td>' +
+				'<td class="opponent-score" id="opponent-score-' + opponent.id + '">' + opponent.score + '</td>' +
+				'<td class="opponent-status" id="opponent-status-' + opponent.id + '">' + opponent.status + '</td>' +
+				'</tr>'
+		});
+		$('#board-player-list').html (html);
+	}
 	
 	return self;
 }) ();
