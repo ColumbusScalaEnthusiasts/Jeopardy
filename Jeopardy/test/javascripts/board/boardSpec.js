@@ -65,7 +65,7 @@ describe ("A Board controller, initialized with mocks,", function () {
 		});
 		
 		it ("instructs the view to show Mike as the user in control of the board", function () {
-			expect (view.displayUserStatus).toHaveBeenCalledWith ("InControlStatus");
+			expect (view.displayUserStatus).toHaveBeenCalledWith ({ id : 1234, name : 'Mike', score : 150, status : 'InControlStatus' });
 		});
 	
 		it ("instructs the view to show the opponents", function () {
