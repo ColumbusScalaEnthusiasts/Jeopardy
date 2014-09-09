@@ -3,6 +3,14 @@ Jeopardy
 
 A group coding project for the Columbus Scala Enthusiasts group.
 
+Running the project
+=======
+Due to some issues with the version of Play we are using you have to run a nonstandard command to get the game project to work in sbt.  To run tasks on the play play application from sbt start from the root directory and run:
+sbt "project game" &lt;task&gt;
+
+The functional project will follow the normal sbt multiproject build convention:
+sbt functional/&lt;task&gt;
+
 
 Karma/Jasmine
 =======
