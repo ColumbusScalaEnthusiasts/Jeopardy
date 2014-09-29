@@ -42,7 +42,7 @@ class JasmineTest extends FunSpec with Firefox {
   }
 
   def makeFileUrl: String = {
-    s"file:${System.getProperty("user.dir")}/test/javascripts/SpecRunner.html"
+    s"file:${System.getProperty("user.dir")}/game/test/javascripts/SpecRunner.html"
   }
 
   abstract class JasmineScraper(driver: WebDriver) {
