@@ -151,7 +151,8 @@ class VestibuleHandlerTest extends FunSpec {
     val factory = new JeopardyBoardHandlerFactory ()
     
     describe ("when instructed to make a JeopardyBoardHandler") {
-      val result = factory.make (system, null, 0, Nil)
+      val boardSelector = mock (classOf[BoardSelectorService])
+      val result = factory.make (system, boardSelector, 0, Nil)
       
       it ("does so, as far as anybody can tell") {
         assert (classOf[ActorRef].isAssignableFrom (result.getClass))
