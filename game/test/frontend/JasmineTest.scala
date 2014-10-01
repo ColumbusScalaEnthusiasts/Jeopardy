@@ -43,7 +43,7 @@ class JasmineTest extends FunSpec with Firefox {
 
   def makeFileUrl: String = {
     val currentDirectory = System.getProperty("user.dir")
-    val specRunnerLocation = "Jeopardy/game/test/javascripts/SpecRunner.html"
+    val specRunnerLocation = "game/test/javascripts/SpecRunner.html"
     var commonString = specRunnerLocation
     while (!commonString.isEmpty && !currentDirectory.endsWith (commonString)) {
       commonString = commonString.substring (0, commonString.length () - 1)
