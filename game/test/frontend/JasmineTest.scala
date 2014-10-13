@@ -6,7 +6,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.selenium.WebBrowser
 import org.scalatest.selenium.HtmlUnit
-import java.io.File
+import java.io.{FileNotFoundException, File}
 import org.scalatest.selenium.Firefox
 import org.openqa.selenium.firefox.FirefoxDriver
 import org.openqa.selenium.WebDriver
@@ -42,7 +42,21 @@ class JasmineTest extends FunSpec with Firefox {
   }
 
   def makeFileUrl: String = {
-    s"file:${System.getProperty("user.dir")}/game/test/javascripts/SpecRunner.html"
+    val currentDirectory = System.getProperty("user.dir")
+    val specRunnerLocation = "game/test/javascripts/SpecRunner.html"
+    var commonString = specRunnerLocation
+    while (!commonString.isEmpty && !currentDirectory.endsWith (commonString)) {
+      commonString = commonString.substring (0, commonString.length () - 1)
+    }
+    if (commonString.isEmpty) {
+      throw new IllegalStateException (s"Can't find SpecRunner.html in '${specRunnerLocation}' from '${currentDirectory}'")
+    }
+    val prefix = currentDirectory.substring (0, currentDirectory.length () - commonString.length ())
+    val specRunnerPath = s"${prefix}/${specRunnerLocation}"
+    if (!new File (specRunnerPath).isFile ()) {
+      throw new FileNotFoundException (s"Failed to find SpecRunner.html at ${specRunnerPath}")
+    }
+    return s"file:${specRunnerPath}"
   }
 
   abstract class JasmineScraper(driver: WebDriver) {
