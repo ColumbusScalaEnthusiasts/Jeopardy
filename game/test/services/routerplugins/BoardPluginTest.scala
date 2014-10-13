@@ -41,57 +41,57 @@ class BoardPluginTest extends FunSpec {
       it ("translates it correctly to JSON for the front end") {
         val msg = Json.parse ("""
 {
-	"type": "boardStatus",
+  "type": "boardStatus",
   "data": {
     "players": [
-			{"id": 1, "name": "Player 1", "score": 1000, "status": "WaitingForChoiceStatus"},
-			{"id": 2, "name": "Player 2", "score": 2000, "status": "WaitingForChoiceStatus"},
-			{"id": 3, "name": "Player 3", "score": 3000, "status": "WaitingForChoiceStatus"}
+      {"id": 1, "name": "Player 1", "score": 1000, "status": "WaitingForChoiceStatus"},
+      {"id": 2, "name": "Player 2", "score": 2000, "status": "WaitingForChoiceStatus"},
+      {"id": 3, "name": "Player 3", "score": 3000, "status": "WaitingForChoiceStatus"}
     ],
     "columns": [
-			{"category": {"id": 101, "name": "Category 1"}, "questions": [
-				{"id": 7, "value": 200},
-				{"id": 13, "value": 400},
-				{"id": 19, "value": 600},
-				{"id": 25, "value": 800},
-				{"id": 31, "value": 1000}
+      {"category": {"id": 101, "name": "Category 1"}, "questions": [
+        {"id": 7, "value": 200},
+        {"id": 13, "value": 400},
+        {"id": 19, "value": 600},
+        {"id": 25, "value": 800},
+        {"id": 31, "value": 1000}
       ]},
-			{"category": {"id": 102, "name": "Category 2"}, "questions": [
-				{"id": 8, "value": 200},
-				{"id": 14, "value": 400},
-				{"id": 20, "value": 600},
-				{"id": 26, "value": 800},
-				{"id": 32, "value": 1000}
+      {"category": {"id": 102, "name": "Category 2"}, "questions": [
+        {"id": 8, "value": 200},
+        {"id": 14, "value": 400},
+        {"id": 20, "value": 600},
+        {"id": 26, "value": 800},
+        {"id": 32, "value": 1000}
       ]},
-			{"category": {"id": 103, "name": "Category 3"}, "questions": [
-				{"id": 9, "value": 200},
-				{"id": 15, "value": 400},
-				{"id": 21, "value": 600},
-				{"id": 27, "value": 800},
-				{"id": 33, "value": 1000}
+      {"category": {"id": 103, "name": "Category 3"}, "questions": [
+        {"id": 9, "value": 200},
+        {"id": 15, "value": 400},
+        {"id": 21, "value": 600},
+        {"id": 27, "value": 800},
+        {"id": 33, "value": 1000}
       ]},
-			{"category": {"id": 104, "name": "Category 4"}, "questions": [
-				{"id": 10, "value": 200},
-				{"id": 16, "value": 400},
-				{"id": 22, "value": 600},
-				{"id": 28, "value": 800},
-				{"id": 34, "value": 1000}
+      {"category": {"id": 104, "name": "Category 4"}, "questions": [
+        {"id": 10, "value": 200},
+        {"id": 16, "value": 400},
+        {"id": 22, "value": 600},
+        {"id": 28, "value": 800},
+        {"id": 34, "value": 1000}
       ]},
-			{"category": {"id": 105, "name": "Category 5"}, "questions": [
-				{"id": 11, "value": 200},
-				{"id": 17, "value": 400},
-				{"id": 23, "value": 600},
-				{"id": 29, "value": 800},
-				{"id": 35, "value": 1000}
+      {"category": {"id": 105, "name": "Category 5"}, "questions": [
+        {"id": 11, "value": 200},
+        {"id": 17, "value": 400},
+        {"id": 23, "value": 600},
+        {"id": 29, "value": 800},
+        {"id": 35, "value": 1000}
       ]},
-			{"category": {"id": 106, "name": "Category 6"}, "questions": [
-				{"id": 12, "value": 200},
-				{"id": 18, "value": 400},
-				{"id": 24, "value": 600},
-				{"id": 30, "value": 800},
-				{"id": 36, "value": 1000}
+      {"category": {"id": 106, "name": "Category 6"}, "questions": [
+        {"id": 12, "value": 200},
+        {"id": 18, "value": 400},
+        {"id": 24, "value": 600},
+        {"id": 30, "value": 800},
+        {"id": 36, "value": 1000}
       ]}
-		]
+    ]
   }
 }
 """)
@@ -107,7 +107,7 @@ class BoardPluginTest extends FunSpec {
       it ("translates it correctly to JSON for the front end") {
         val msg = Json.parse ("""
 {
-	"type": "askQuestion",
+  "type": "askQuestion",
   "data": {
     "id": 34, "text": "How high is up?"
   }
@@ -125,7 +125,7 @@ class BoardPluginTest extends FunSpec {
       it ("translates it correctly to JSON for the front end") {
         val msg = Json.parse ("""
 {
-	"type": "questionClaimed",
+  "type": "questionClaimed",
   "data": {
     "buzzWinnerId": 1234
   }
@@ -143,7 +143,7 @@ class BoardPluginTest extends FunSpec {
       it ("translates it correctly to JSON for the front end") {
         val msg = Json.parse ("""
 {
-	"type": "buzzWinner",
+  "type": "buzzWinner",
   "data": {}
 }
 """)
@@ -154,7 +154,7 @@ class BoardPluginTest extends FunSpec {
     describe ("and sent a ChooseQuestion message from the front end") {
       val data = Json.parse ("""
 {
-	"id": 29
+  "id": 29
 }
 """)
       router.underlyingActor.erase()

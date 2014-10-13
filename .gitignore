@@ -21,3 +21,5 @@
 .DS_Store
 /bin/
 test-results.xml
+/**/*.log
+/**/*_log.txt

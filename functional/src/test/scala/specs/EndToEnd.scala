@@ -15,7 +15,7 @@ class EndToEnd extends FunSuite with JeopardyFunctional {
   test ("The Vestibule, already occupied, is entered by another player who then makes ready") {
     val databaseConditioner = new DatabaseConditioner ()
     databaseConditioner.conditionForTest ()
-	  val annieContext = makeAnotherContext ()
+    val annieContext = makeAnotherContext ()
     val billyContext = makeAnotherContext ()
     try {
       traverseVestibule (annieContext, billyContext)
@@ -35,7 +35,7 @@ class EndToEnd extends FunSuite with JeopardyFunctional {
   }
 
   private def traverseVestibule (annieContext: ContextPackage, billyContext: ContextPackage) {
-  	val annieVestibule: Vestibule = new Vestibule ()(annieContext)
+    val annieVestibule: Vestibule = new Vestibule ()(annieContext)
     annieVestibule.enterViaIndex()
     checkPlayers (List (annieVestibule), Nil)
     annieVestibule.signIn ("Annie")

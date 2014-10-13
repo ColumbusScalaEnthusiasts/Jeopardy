@@ -5,73 +5,73 @@
         <link rel="stylesheet" href="@routes.Assets.at("stylesheets/main.css")" >
         <script src="@routes.Assets.at("javascripts/jquery-1.8.2.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/underscore-1.6.0.min.js")" type="text/javascript"></script>
-        
+
         <script src="@routes.Assets.at("javascripts/util/utils.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/vestibule/vestibule.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/board/board.js")" type="text/javascript"></script>
     </head>
     <body>
-		<div id="vestibule-page-content" style="display: none;">
+        <div id="vestibule-page-content" style="display: none;">
             <div id="vestibule-widget">
-		    <table>
-		    	<thead>
-		    		<tr>
-			    		<td>Player Name</td>
-			    		<td>Status</td>
-			    	</tr>
-		    	</thead>
-		        <tbody id="player-list">
-		        </tbody>
-		    </table>
-			 <div id="player-controls">
-			 	<div id="sign-in-panel" style="display: none;">
-				    <label for="player-name">Your Name:</label>
-				    <input type="text" id="player-name"/>
-				    <button id="sign-in-button">Sign In</button>
-			 	</div>
-			 	<div id="ready-panel" style="display: none;">
-			 		<button id="ready-button">Ready</button>
-			 	</div>
-			 	<div id="start-panel" style="display: none;">
-			 		<button id="start-button">START</button>
-			 	</div>
-			 	<div id="sign-out-panel" style="display: none;">
-				    <button id="sign-out-button">Sign Out</button>
-			 	</div>
-			 </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <td>Player Name</td>
+                            <td>Status</td>
+                        </tr>
+                    </thead>
+                    <tbody id="player-list">
+                    </tbody>
+                </table>
+                <div id="player-controls">
+                    <div id="sign-in-panel" style="display: none;">
+                        <label for="player-name">Your Name:</label>
+                        <input type="text" id="player-name"/>
+                        <button id="sign-in-button">Sign In</button>
+                    </div>
+                    <div id="ready-panel" style="display: none;">
+                        <button id="ready-button">Ready</button>
+                    </div>
+                    <div id="start-panel" style="display: none;">
+                        <button id="start-button">START</button>
+                    </div>
+                    <div id="sign-out-panel" style="display: none;">
+                        <button id="sign-out-button">Sign Out</button>
+                    </div>
+                </div>
             </div>
-		</div>
-		<div id="board-page-content" style="display: none;">
-			<table>
-				<thead>
-					<tr id="categories">
-					</tr>
-				</thead>
-				<tbody id="questions">
-				</tbody>
-			</table>
-			<div id="center-display">
-				<div id="user-player-name"></div>
-				<div id="user-player-score"></div>
-				<div id="user-player-instructions"></div>
-			</div>
-			<table>
-				<thead>
-					<tr>
-						<td>Player Name</td>
-						<td>Score</td>
-						<td>Status</td>
-					</tr>
-				</thead>
-				<tbody id="board-player-list">
-				</tbody>
-			</table>
-		</div>
-		<script type="text/javascript">
-			Jeopardy.Vestibule.Controller.initialize (
-				document.location,
-				Jeopardy.Vestibule.View
-			);
-		</script>
+        </div>
+        <div id="board-page-content" style="display: none;">
+            <table id="board">
+                <thead>
+                    <tr id="categories">
+                    </tr>
+                </thead>
+                <tbody id="questions">
+                </tbody>
+            </table>
+            <div id="center-display">
+                <div id="user-player-name"></div>
+                <div id="user-player-score"></div>
+                <div id="user-player-instructions"></div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <td>Player Name</td>
+                        <td>Score</td>
+                        <td>Status</td>
+                    </tr>
+                </thead>
+                <tbody id="board-player-list">
+                </tbody>
+            </table>
+        </div>
+        <script type="text/javascript">
+        Jeopardy.Vestibule.Controller.initialize (
+        document.location,
+        Jeopardy.Vestibule.View
+        );
+        </script>
     </body>
 </html>

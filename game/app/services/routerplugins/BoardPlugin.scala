@@ -17,18 +17,18 @@ case class BoardStatus (
 )
 
 case class BoardColumn (
-		category: Category,
-		questions: List[Question]
+    category: Category,
+    questions: List[Question]
 )
-		
+
 case class Category (
-		id: Long,
-		name: String
+    id: Long,
+    name: String
 )
-		
+
 case class Question (
     id: Long,
-		value: Int
+    value: Int
 )
 
 case class AskQuestion (id: Long, text: String)
@@ -38,14 +38,14 @@ case class QuestionClaimed (buzzWinnerId: Long)
 case class BuzzWinner ()
 
 class BoardPlugin extends RouterPlugin {
-  
+
   override def handleIncomingMessage (msgType: String, msgData: JsValue) {
     msgType match {
-      case "chooseQuestion" => handleChooseQuestion (longField (msgData, "id")) 
+      case "chooseQuestion" => handleChooseQuestion (longField (msgData, "id"))
       case "buzz" => handleBuzz ()
     }
   }
-  
+
   override def handleOutgoingMessage (msg: Any) {
     msg match {
       case msg: BoardStatus => handleBoardStatus (msg)
@@ -54,15 +54,15 @@ class BoardPlugin extends RouterPlugin {
       case msg: BuzzWinner => handleBuzzWinner ()
     }
   }
-  
+
   private def handleChooseQuestion (id: Long) {
     send (ChooseQuestion (id), backEndHandler)
   }
-  
+
   private def handleBuzz () {
     send (Buzz (), backEndHandler)
   }
-  
+
   private def handleBoardStatus (msg: BoardStatus) {
     val json = new JsObject (List (
       ("type", new JsString ("boardStatus")),
@@ -78,7 +78,7 @@ class BoardPlugin extends RouterPlugin {
         ("columns", new JsArray (msg.columns.map {column =>
           new JsObject (List (
             ("category", new JsObject (List (
-              ("id", new JsNumber (column.category.id)), 
+              ("id", new JsNumber (column.category.id)),
               ("name", new JsString (column.category.name))
             ))),
             ("questions", new JsArray (column.questions.map {question =>
@@ -93,7 +93,7 @@ class BoardPlugin extends RouterPlugin {
     ))
     send (json, outputSocket)
   }
-  
+
   private def handleAskQuestion (msg: AskQuestion) {
     val json = new JsObject (List (
       ("type", new JsString ("askQuestion")),
@@ -104,7 +104,7 @@ class BoardPlugin extends RouterPlugin {
     ))
     send (json, outputSocket)
   }
-  
+
   private def handleQuestionClaimed (msg: QuestionClaimed) {
     val json = new JsObject (List (
       ("type", new JsString ("questionClaimed")),
@@ -114,7 +114,7 @@ class BoardPlugin extends RouterPlugin {
     ))
     send (json, outputSocket)
   }
-  
+
   private def handleBuzzWinner () {
     val json = new JsObject (List (
       ("type", new JsString ("buzzWinner")),

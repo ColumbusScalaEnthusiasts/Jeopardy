@@ -23,9 +23,9 @@ trait JeopardyFunctional {
     }
   }
 
-  def makeAnotherContext () = ContextPackage (makeDriver (), getBaseUrl ())
+  def makeAnotherContext() = ContextPackage (makeDriver(), getBaseUrl())
 
-  private def makeDriver (): WebDriver = {
+  private def makeDriver(): WebDriver = {
     val driverType = System.getProperty ("webDriverType", "P")
     val driver = driverType.charAt (0).toUpper match {
       case 'F' => new FirefoxDriver ()
@@ -39,7 +39,7 @@ trait JeopardyFunctional {
     driver
   }
 
-  private def getBaseUrl (): String = {
+  private def getBaseUrl(): String = {
     System.getProperty ("baseUrl", "http://localhost:9000")
   }
 }
