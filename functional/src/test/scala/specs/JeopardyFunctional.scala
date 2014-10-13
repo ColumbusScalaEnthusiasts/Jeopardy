@@ -30,6 +30,8 @@ trait JeopardyFunctional {
   
   private def makeDriver (): WebDriver = {
     val driverType = System.getProperty ("webDriverType", "FIREFOX")
+    val driver = new FirefoxDriver ()
+/*
     val driver = driverType.charAt (0).toUpper match {
       case 'F' => new FirefoxDriver ()
       case 'C' => new ChromeDriver ()
@@ -37,6 +39,7 @@ trait JeopardyFunctional {
       case 'I' => new InternetExplorerDriver ()
       case _ => throw new IllegalArgumentException (s"Unknown webDriverType: ${driverType}")
     }
+*/
     driver.manage ().timeouts ().implicitlyWait (10, TimeUnit.SECONDS);
     driver
   }
