@@ -22,19 +22,18 @@ wait_for_server () {
 	return $exit_code
 }
 
-pushd "$1"
+cd "$1"
 activator stage
-target/universal/stage/bin/jeopardy >functional_test_log.txt &
-popd
+game/target/universal/stage/bin/game >functional_test_log.txt &
 wait_for_server "$2" "$3"
 if [ $? -ne 0 ] ; then
-	get_server_pid "$1/functional_test_log.txt"
+	get_server_pid "functional_test_log.txt"
 	kill -9 $server_pid
 	exit -1
 fi
-sbt test
+sbt functional/test
 exit_code=$?
-get_server_pid "$1/functional_test_log.txt"
+get_server_pid "functional_test_log.txt"
 kill $server_pid
 exit $exit_code
 
