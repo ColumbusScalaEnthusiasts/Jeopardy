@@ -23,5 +23,9 @@ object Dependencies {
     seleniumSupport % "test",
     seleniumJava % "test"
   )
-  val functionalDependencies = Seq(scalaTest % "test", junit, seleniumServer % "test")
+  val functionalDependencies = Seq(
+    scalaTest % "test",
+    phantomJs % "test",
+    junit,
+    seleniumServer % "test")
 }

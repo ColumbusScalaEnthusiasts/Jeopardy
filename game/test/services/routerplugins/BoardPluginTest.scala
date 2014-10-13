@@ -37,7 +37,7 @@ class BoardPluginTest extends FunSpec {
       )
       router.underlyingActor.erase()
       subject.handleOutgoingMessage(boardStatus)
-      
+
       it ("translates it correctly to JSON for the front end") {
         val msg = Json.parse ("""
 {
@@ -103,7 +103,7 @@ class BoardPluginTest extends FunSpec {
       val askQuestion = AskQuestion (34L, "How high is up?")
       router.underlyingActor.erase()
       subject.handleOutgoingMessage(askQuestion)
-      
+
       it ("translates it correctly to JSON for the front end") {
         val msg = Json.parse ("""
 {
@@ -121,7 +121,7 @@ class BoardPluginTest extends FunSpec {
       val questionClaimed = QuestionClaimed (1234L)
       router.underlyingActor.erase()
       subject.handleOutgoingMessage(questionClaimed)
-      
+
       it ("translates it correctly to JSON for the front end") {
         val msg = Json.parse ("""
 {
@@ -139,7 +139,7 @@ class BoardPluginTest extends FunSpec {
       val buzzWinner = BuzzWinner ()
       router.underlyingActor.erase()
       subject.handleOutgoingMessage(buzzWinner)
-      
+
       it ("translates it correctly to JSON for the front end") {
         val msg = Json.parse ("""
 {
@@ -150,7 +150,7 @@ class BoardPluginTest extends FunSpec {
         assert (router.underlyingActor.getRecording === List(Relay (msg, outputSocket)))
       }
     }
-    
+
     describe ("and sent a ChooseQuestion message from the front end") {
       val data = Json.parse ("""
 {
@@ -159,24 +159,24 @@ class BoardPluginTest extends FunSpec {
 """)
       router.underlyingActor.erase()
       subject.handleIncomingMessage("chooseQuestion", data)
-      
+
       it ("translates it correctly from JSON for the back end") {
         val msg = ChooseQuestion (29L)
         assert (router.underlyingActor.getRecording === List (Relay (msg, backEndHandler)))
       }
     }
-    
+
     describe ("and sent a Buzz message from the front end") {
       val data = Json.parse ("{}")
       router.underlyingActor.erase()
       subject.handleIncomingMessage("buzz", data)
-      
+
       it ("translates it correctly from JSON for the back end") {
         val msg = Buzz ()
         assert (router.underlyingActor.getRecording === List (Relay (msg, backEndHandler)))
       }
     }
-    
-    system.shutdown ();
+
+    system.shutdown ()
   }
 }

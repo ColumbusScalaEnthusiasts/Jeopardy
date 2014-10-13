@@ -6,7 +6,7 @@ import pages.vestibule.Player
 
 class BoardPage extends Page {
   override def isDisplayed(): Boolean = isDisplayed (By.id ("board-page-content"))
-  
+
   def userInfo: Player = {
     Player (
       text (By.id ("user-player-name")),
@@ -14,11 +14,11 @@ class BoardPage extends Page {
       getAttribute (By.id ("user-player-instructions"), "status")
     )
   }
-  
+
   def playersPresent: List[Player] = {
     findElements (By.className ("opponent-row")) {_.map {row =>
       val regMatch = """opponent-row-(\d+)$""".r.findFirstMatchIn(row.getAttribute ("id")).get
-      val id = regMatch.group (1);
+      val id = regMatch.group (1)
       Player (
         text (By.id (s"opponent-name-${id}")),
         text (By.id (s"opponent-score-${id}")).toInt,
