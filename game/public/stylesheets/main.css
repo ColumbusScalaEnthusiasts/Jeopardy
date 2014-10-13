@@ -31,3 +31,17 @@
     padding: 10px;
     vertical-align: middle;
 }
+
+#board {
+    background-color: blue;
+    color: white;
+    border-collapse: collapse;
+    font-size: 24px;
+    font-weight: bold;
+    font-family: Tahoma, sans-serif;
+}
+
+#board td {
+    padding: 10px;
+    border: 1px solid white;
+}
