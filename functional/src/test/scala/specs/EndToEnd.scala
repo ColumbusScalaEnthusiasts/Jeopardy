@@ -1,6 +1,10 @@
 package specs
 
+import java.io.File
+
+import org.apache.commons.io.FileUtils
 import org.junit.runner.RunWith
+import org.openqa.selenium.{OutputType, TakesScreenshot}
 import org.scalatest.FunSuite
 import model.vestibule.Vestibule
 import pages.vestibule.Player
@@ -22,8 +26,12 @@ class EndToEnd extends FunSuite with JeopardyFunctional {
       playARound (annieContext, billyContext)
     }
     finally {
-      annieContext.close ()
-      billyContext.close ()
+      val screenshotFileAnnie = annieContext.driver.asInstanceOf[TakesScreenshot].getScreenshotAs(OutputType.FILE)
+      FileUtils.copyFile(screenshotFileAnnie, new File("webdriver.screenshot1.png"))
+      val screenshotFileBilly = billyContext.driver.asInstanceOf[TakesScreenshot].getScreenshotAs(OutputType.FILE)
+      FileUtils.copyFile(screenshotFileAnnie, new File("webdriver.screenshot2.png"))
+      annieContext.close()
+      billyContext.close()
       databaseConditioner.uncondition ()
     }
 
