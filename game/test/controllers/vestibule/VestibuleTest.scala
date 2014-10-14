@@ -18,15 +18,15 @@ import play.api.test.WithApplication
 @DoNotDiscover
 @RunWith(classOf[JUnitRunner])
 class VestibuleTest extends FunSpec {
-	new WithApplication () {
+  new WithApplication () {
     describe ("A Vestibule controller") {
       class SubjectController extends Controller with Vestibule
-      
+
       val subject = new SubjectController ()
-      
+
       describe ("when directed to handle an index request") {
         val result = subject.index ().apply (FakeRequest ())
-        
+
         it ("produces an appropriate response") {
           assert (status (result) === 200)
           assert (contentAsString (result).contains ("Jeopardy.Vestibule.Controller.initialize"))

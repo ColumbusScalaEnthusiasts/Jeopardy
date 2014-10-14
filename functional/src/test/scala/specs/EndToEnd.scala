@@ -30,8 +30,8 @@ class EndToEnd extends FunSuite with JeopardyFunctional {
       FileUtils.copyFile(screenshotFileAnnie, new File("webdriver.screenshot1.png"))
       val screenshotFileBilly = billyContext.driver.asInstanceOf[TakesScreenshot].getScreenshotAs(OutputType.FILE)
       FileUtils.copyFile(screenshotFileAnnie, new File("webdriver.screenshot2.png"))
-      annieContext.close();
-      billyContext.close();
+      annieContext.close()
+      billyContext.close()
       databaseConditioner.uncondition()
     }
 

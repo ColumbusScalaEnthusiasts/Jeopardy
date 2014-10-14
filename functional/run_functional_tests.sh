@@ -31,7 +31,7 @@ if [ $? -ne 0 ] ; then
 	kill -9 $server_pid
 	exit -1
 fi
-sbt functional/test
+activator functional/test
 exit_code=$?
 get_server_pid "functional_test_log.txt"
 kill $server_pid

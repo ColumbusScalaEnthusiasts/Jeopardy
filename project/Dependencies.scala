@@ -26,6 +26,5 @@ object Dependencies {
     scalaTest % "test",
     phantomJs % "test",
     junit,
-    seleniumServer % "test"
-  )
+    seleniumServer % "test")
 }

@@ -24,23 +24,23 @@ case class ChooseQuestion (id: Long)
 case class Buzz ()
 
 case class ActivePlayerRecord (
-    val id: Long, 
-    val name: String, 
-    var score: Int, 
-    var status: ActivePlayerStatus, 
+    val id: Long,
+    val name: String,
+    var score: Int,
+    var status: ActivePlayerStatus,
     val listener: ActorRef
 ) {
   def this (record: PlayerRecord) = this (
-    record.id, 
-    record.name, 
-    0, 
-    WaitingForChoiceStatus, 
+    record.id,
+    record.name,
+    0,
+    WaitingForChoiceStatus,
     record.listener
    )
 }
 
 object JeopardyBoardHandler {
-  def apply (system: ActorSystem, boardSelector: BoardSelectorService, multiplier: Int, 
+  def apply (system: ActorSystem, boardSelector: BoardSelectorService, multiplier: Int,
       players: List[ActivePlayerRecord]): ActorRef = {
     system.actorOf (Props (classOf[JeopardyBoardHandler], boardSelector, multiplier, players))
   }
@@ -48,15 +48,15 @@ object JeopardyBoardHandler {
 
 class JeopardyBoardHandler (boardSelector: BoardSelectorService, multiplier: Int, players: List[ActivePlayerRecord]) extends Actor {
   val board = boardSelector.makeBoard(multiplier)
-  
+
   sendBoardStatus (board, players)
-  
+
   override def receive = {
     case msg: ChooseQuestion => handleChooseQuestion (msg)
     case msg: Buzz => handleBuzz (msg)
     case msg => throw new UnsupportedOperationException (s"Unexpected message: ${msg}")
   }
-  
+
   private def handleChooseQuestion (msg: ChooseQuestion) {
     val player = findPlayer (sender, msg)
     if (player.status != InControlStatus) {return}
@@ -73,7 +73,7 @@ class JeopardyBoardHandler (boardSelector: BoardSelectorService, multiplier: Int
       case None => throw new IllegalArgumentException (s"Found questions with IDs ${questions.map {question => question.id}}, but no question with ID ${msg.id}")
     }
   }
-  
+
   private def handleBuzz (msg: Buzz) {
     val winner = findPlayer (sender, msg)
     if (winner.status != WaitingForBuzzStatus) {return}
@@ -88,15 +88,15 @@ class JeopardyBoardHandler (boardSelector: BoardSelectorService, multiplier: Int
       }
     }
   }
-  
+
   private def sendBoardStatus (board: Board, players: List[ActivePlayerRecord]) {
     val columns = makeBoardColumns (board)
- 		val msg = BoardStatus (players, columns)
+     val msg = BoardStatus (players, columns)
     players.foreach {player =>
       player.listener ! msg
     }
   }
-  
+
   private def makeBoardColumns (board: Board): List[services.routerplugins.BoardColumn] = {
     board.columns.map {inColumn =>
       val category = services.routerplugins.Category (inColumn.category.id, inColumn.category.name)
@@ -109,7 +109,7 @@ class JeopardyBoardHandler (boardSelector: BoardSelectorService, multiplier: Int
       services.routerplugins.BoardColumn (category, questions)
     }
   }
-  
+
   private def findPlayer (sender: ActorRef, msg: Any): ActivePlayerRecord = {
     players.find {_.listener == sender} match {
       case Some (player) => player

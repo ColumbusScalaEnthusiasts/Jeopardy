@@ -5,20 +5,20 @@ case class Board (
 )
 
 case class BoardColumn (
-		category: Category,
-		questions: List[Question]
+    category: Category,
+    questions: List[Question]
 )
-		
+
 case class Category (
-		id: Long,
-		name: String
+    id: Long,
+    name: String
 )
-		
+
 case class Question (
     id: Long,
-		text: String,
-		value: Int,
-		answers: List[Answer]
+    text: String,
+    value: Int,
+    answers: List[Answer]
 )
 
 case class Answer (

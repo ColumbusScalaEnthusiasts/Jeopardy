@@ -35,7 +35,7 @@ case class PlayerRecord (
 )
 
 class JeopardyBoardHandlerFactory {
-  def make (system: ActorSystem, boardSelector: BoardSelectorService, multiplier: Int, 
+  def make (system: ActorSystem, boardSelector: BoardSelectorService, multiplier: Int,
       players: List[ActivePlayerRecord]): ActorRef = {
     JeopardyBoardHandler (system, boardSelector, multiplier, players)
   }
@@ -43,9 +43,9 @@ class JeopardyBoardHandlerFactory {
 
 class VestibuleHandler extends Actor {
   var jeopardyBoardHandlerFactory = new JeopardyBoardHandlerFactory ()
-  private var nextId = 1;
+  private var nextId = 1
   private var players = List[PlayerRecord]()
-  
+
   override def receive = {
     case msg: NewConnection => handleNewConnection ()
     case msg: SignIn => handleSignIn (msg)
@@ -53,18 +53,18 @@ class VestibuleHandler extends Actor {
     case msg: StartMsg => handleStartMsg ()
     case msg: SignOut => handleSignOut ()
   }
-  
+
   private def handleNewConnection () {
     sender ! makePlayerList
   }
-  
+
   private def handleSignIn (msg: SignIn) {
     players = PlayerRecord (nextId, msg.name, SignedIn, sender) :: players
     sendPlayerLists ()
     sender ! SignedIn (nextId)
     nextId = nextId + 1
   }
-  
+
   private def handleReadyMsg () {
     players = players.map {player =>
       player.listener match {
@@ -74,7 +74,7 @@ class VestibuleHandler extends Actor {
     }
     sendPlayerLists ()
   }
-  
+
   private def handleStartMsg () {
     val readyPlayers = players.filter {_.status == Ready}
     if (readyPlayers.size < 2) {return}
@@ -82,44 +82,44 @@ class VestibuleHandler extends Actor {
     handleStartMsgForUnreadyPlayers ()
     handleStartMsgForReadyPlayers (readyPlayers)
   }
-  
+
   private def handleStartMsgForUnreadyPlayers () {
     sendPlayerLists ()
   }
-  
+
   private def handleStartMsgForReadyPlayers (players: List[PlayerRecord]) {
     // TODO: The following line will need to move to bootstrap code when we get a database
     val boardSelector = new BoardSelectorService ()
-    
+
     val activePlayers = players.map {player =>
       ActivePlayerRecord (
         player.id,
-        player.name, 
+        player.name,
         0,
         if (player.listener == sender) {InControlStatus} else {WaitingForChoiceStatus},
         player.listener
       )
     }
     val boardHandler = jeopardyBoardHandlerFactory.make (context.system, boardSelector, 200, activePlayers)
-    players.foreach {player => 
+    players.foreach {player =>
       player.listener ! GameStarting ()
       player.listener ! InstallPluginAndBackEnd (new BoardPlugin (), Some (boardHandler))
     }
   }
-  
+
   private def handleSignOut () {
     players = players.filter {_.listener != sender}
     sendPlayerLists ()
   }
-  
+
   private def sendPlayerLists () {
     players.foreach {player =>
       player.listener ! makePlayerList
     }
   }
-  
+
   private def makePlayerList = PlayerList (players.map {p => PlayerInfo (p.id, p.name, p.status)}.reverse)
-  
+
   private def playerRecordWithStatus (player: PlayerRecord, status: PlayerStatus): PlayerRecord = {
     PlayerRecord (
       player.id,
