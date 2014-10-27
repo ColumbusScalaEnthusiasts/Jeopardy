@@ -90,7 +90,8 @@ Jeopardy.Vestibule.View = (function () {
 	};
 	
 	var wireInControls = function () {
-		$('#sign-in-button').click (function () {self.controller.signIn ($('#player-name').val ());});
+		$('#sign-in-button').click (signIn);
+        $('#player-name').keypress (function (event) {if (event.which === 13) {signIn ();}});
 		$('#ready-button').click (self.controller.signalReady);
 		$('#start-button').click (self.controller.startGame);
 		$('#sign-out-button').click (self.controller.signOut);
@@ -103,6 +104,10 @@ Jeopardy.Vestibule.View = (function () {
 		});
 		return outputStatus ? outputStatus : "signedIn";
 	}
+
+    var signIn = function () {
+        self.controller.signIn ($('#player-name').val ());
+    }
 	
 	self.controller = null;
 	

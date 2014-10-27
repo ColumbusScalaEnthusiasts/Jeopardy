@@ -312,16 +312,48 @@ describe ("An initialized Vestibule View", function () {
 			subject.displayControls ("SIGNIN");
 		});
 		
-		describe ("and the player name is filled out and submitted", function () {
+		describe ("and the player name is filled out", function () {
 			
 			beforeEach (function () {
-				$('#player-name').val ("Chip");
-				$('#sign-in-button').click ();
-			});
-			
-			it ("the controller is informed", function () {
-				expect (controller.signIn).toHaveBeenCalledWith ("Chip");
-			});
+                $('#player-name').val("Chip");
+            });
+
+            var the_controller_is_informed = function () {
+                expect (controller.signIn).toHaveBeenCalledWith ("Chip");
+            }
+
+            describe ("and the Sign In button is clicked", function () {
+
+                beforeEach (function () {
+                    $('#sign-in-button').click ();
+                });
+
+                it ("the controller is informed", the_controller_is_informed);
+            });
+
+            describe ("and the Enter key is typed", function () {
+
+                beforeEach (function () {
+                    var event = $.Event("keypress");
+                    event.which = 13;
+                    $('#player-name').trigger(event);
+                });
+
+                it ("the controller is informed", the_controller_is_informed);
+            });
+
+            describe ("and a key other than Enter is typed", function () {
+
+                beforeEach (function () {
+                    var event = $.Event("keypress");
+                    event.which = 65;
+                    $('#player-name').trigger(event);
+                });
+
+                it ("the controller is not informed", function () {
+                    expect (controller.signIn).not.toHaveBeenCalled();
+                });
+            });
 		});
 	});
 	
