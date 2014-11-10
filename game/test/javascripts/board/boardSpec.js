@@ -229,7 +229,7 @@ describe ("A Board View, initialized,", function () {
 		});
 	});
 	
-	describe ("and directed to display user status", function () {
+	describe ("and directed to display status for user in control", function () {
 		
 		beforeEach (function () {
 			var player = {id: 123, name: "Tommy", score: 1400, status: "InControlStatus"}
@@ -252,6 +252,30 @@ describe ("A Board View, initialized,", function () {
 			expect ($("#user-player-instructions").html ()).toBe ("Make your selection.");
 		});
 	});
+
+    describe ("and directed to display for users not in control", function () {
+
+        beforeEach (function () {
+            var player = {id: 123, name: "Tommy", score: 1400, status: "WaitingForChoiceStatus"}
+            subject.displayUserStatus (player);
+        });
+
+        it ("displays the user's name", function () {
+            expect ($("#user-player-name").html ()).toBe ("Tommy");
+        });
+
+        it ("displays the user's score", function () {
+            expect ($("#user-player-score").html ()).toBe ("1400");
+        });
+
+        it ("displays hidden status for functional tests", function () {
+            expect ($("#user-player-instructions").attr ("status")).toBe ("WaitingForChoiceStatus");
+        });
+
+        it ("displays the proper instructions for the status", function () {
+            expect ($("#user-player-instructions").html ()).toBe ("Wait for a question to be chosen...");
+        });
+    });
 	
 	describe ("and directed to update the opponents' data", function () {
 		
