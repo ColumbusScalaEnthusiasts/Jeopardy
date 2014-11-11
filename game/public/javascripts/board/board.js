@@ -21,7 +21,9 @@ Jeopardy.Board.Controller = (function () {
 	var handleBoardStatus = function (boardStatusParam) {
 		boardStatus = boardStatusParam;
 		view.updateBoard (boardStatus.columns);
-		view.displayUserStatus (findUserPlayer ());
+        //TODO: update all the players
+        //view.updatePlayers()
+		view.displayUserStatus (findUserPlayer ()); //remove these in favor of updatePlayers method
 		view.updateOpponents (findOpponents ());
 	};
 	
@@ -79,18 +81,18 @@ Jeopardy.Board.View = (function () {
 		$("#questions").html (html);
 	};
 
-    var INSTRUCTIONS = {
-        InControlStatus: "Make your selection.",
-        WaitingForChoiceStatus: "Wait for a question to be chosen..."
-    };
-
-    var inControlMessage = function (opponents) {
+    var getInstructionsText = function (player, opponents) {
         var inControlOpponent = _.find (opponents, function (opponent) {
             return opponent.status === 'InControlStatus';
         });
-        return (inControlOpponent) ?
-            "Wait for " + inControlOpponent.name + " to choose a question..." :
-            undefined;
+
+        var instructions;
+        if (inControlOpponent){
+            instructions = "Wait for " + inControlOpponent.name + " to choose a question..."
+        } else {
+            instructions = "Make your selection."
+        }
+        return instructions
     }
 
 	self.initialize = function (controller) {
@@ -105,13 +107,16 @@ Jeopardy.Board.View = (function () {
 		updateQuestions (questionRows);
 	};
 
-	self.displayUserStatus = function (player) {
+    self.displayPlayerStatus = function(player, opponents){
 		$('#user-player-name').html (player.name);
 		$('#user-player-score').html (player.score);
+
 		var instructions = $('#user-player-instructions');
 		instructions.attr ("status", player.status);
-		instructions.html (INSTRUCTIONS[player.status]);
-	};
+        instructions.html (getInstructionsText(player, opponents));
+
+        self.updateOpponents(opponents);
+    };
 	
 	self.updateOpponents = function (opponents) {
 		var html = "";
@@ -124,11 +129,7 @@ Jeopardy.Board.View = (function () {
 				'</tr>'
 		});
 		$('#board-player-list').html (html);
-        var instructions = inControlMessage(opponents);
-        if (typeof instructions !== 'undefined') {
-            $('#user-player-instructions').html (instructions);
-        }
-	}
+	};
 	
 	return self;
 }) ();

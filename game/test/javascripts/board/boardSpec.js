@@ -228,36 +228,58 @@ describe ("A Board View, initialized,", function () {
 			expect ($("#questions #question-204").html ()).toBe ("400");
 		});
 	});
-	
-	describe ("and directed to display status for user in control", function () {
-		
-		beforeEach (function () {
-			var player = {id: 123, name: "Tommy", score: 1400, status: "InControlStatus"}
-			subject.displayUserStatus (player);
-		});
-		
-		it ("displays the user's name", function () {
-			expect ($("#user-player-name").html ()).toBe ("Tommy");
-		});
-		
-		it ("displays the user's score", function () {
-			expect ($("#user-player-score").html ()).toBe ("1400");
-		});
-		
-		it ("displays hidden status for functional tests", function () {
-			expect ($("#user-player-instructions").attr ("status")).toBe ("InControlStatus");
-		});
-		
-		it ("displays the proper instructions for the status", function () {
-			expect ($("#user-player-instructions").html ()).toBe ("Make your selection.");
-		});
-	});
 
-    describe ("and directed to display for users not in control", function () {
+    describe("and directed to display player status for controlling player", function(){
+        beforeEach(function(){
+            var currentPlayer = {id: 123, name: "Tommy", score: 1400, status: "InControlStatus"};
+            var opponents = [
+                {id: 234, name: "Ursula", score: 1500, status: "WaitingForChoiceStatus"},
+                {id: 345, name: "Valentina", score: 1600, status: "WaitingForChoiceStatus"}
+            ];
+            subject.displayPlayerStatus(currentPlayer, opponents);
+        });
 
-        beforeEach (function () {
-            var player = {id: 123, name: "Tommy", score: 1400, status: "WaitingForChoiceStatus"}
-            subject.displayUserStatus (player);
+        it ("displays the user's name", function () {
+            expect ($("#user-player-name").html ()).toBe ("Tommy");
+        });
+
+        it ("displays the user's score", function () {
+            expect ($("#user-player-score").html ()).toBe ("1400");
+        });
+
+        it ("displays hidden status for functional tests", function () {
+            expect ($("#user-player-instructions").attr ("status")).toBe ("InControlStatus");
+        });
+
+        it ("displays the proper instructions for the status", function () {
+            expect ($("#user-player-instructions").html ()).toBe ("Make your selection.");
+        });
+
+        it ("displays the opponents' names", function () {
+            expect ($("#opponent-name-234").html ()).toBe ("Ursula");
+            expect ($("#opponent-name-345").html ()).toBe ("Valentina");
+        });
+
+        it ("displays the opponents' scores", function () {
+            expect ($("#opponent-score-234").html ()).toBe ("1500");
+            expect ($("#opponent-score-345").html ()).toBe ("1600");
+        });
+
+        it ("displays the opponents' statuses", function () {
+            expect ($("#opponent-status-234").html ()).toBe ("WaitingForChoiceStatus");
+            expect ($("#opponent-status-345").html ()).toBe ("WaitingForChoiceStatus");
+        });
+
+    });
+
+    describe("and directed to display player status for non-controlling player", function(){
+        beforeEach(function(){
+            var currentPlayer = {id: 123, name: "Tommy", score: 1400, status: "WaitingForChoiceStatus"};
+            var opponents = [
+                {id: 234, name: "Ursula", score: 1500, status: "InControlStatus"},
+                {id: 345, name: "Valentina", score: 1600, status: "WaitingForChoiceStatus"}
+            ];
+            subject.displayPlayerStatus(currentPlayer, opponents);
         });
 
         it ("displays the user's name", function () {
@@ -273,49 +295,22 @@ describe ("A Board View, initialized,", function () {
         });
 
         it ("displays the proper instructions for the status", function () {
-            expect ($("#user-player-instructions").html ()).toBe ("Wait for a question to be chosen...");
-        });
-    });
-	
-	describe ("and directed to update the opponents' data", function () {
-		
-		beforeEach (function () {
-			var opponents = [
-     			{id: 234, name: "Ursula", score: 1500, status: "WaitingForChoiceStatus"},
-    			{id: 345, name: "Valentina", score: 1600, status: "InControlStatus"},
-			];
-			subject.updateOpponents (opponents)
-		});
-		
-		it ("displays the opponents' names", function () {
-			expect ($("#opponent-name-234").html ()).toBe ("Ursula");
-			expect ($("#opponent-name-345").html ()).toBe ("Valentina");
-		});
-		
-		it ("displays the opponents' scores", function () {
-			expect ($("#opponent-score-234").html ()).toBe ("1500");
-			expect ($("#opponent-score-345").html ()).toBe ("1600");
-		});
-		
-		it ("displays the opponents' statuses", function () {
-			expect ($("#opponent-status-234").html ()).toBe ("WaitingForChoiceStatus");
-			expect ($("#opponent-status-345").html ()).toBe ("InControlStatus");
-		});
-
-        it ("displays the proper instructions for the status", function () {
-            expect ($("#user-player-instructions").html ()).toBe ("Wait for Valentina to choose a question...");
-        });
-	});
-
-    describe ("and directed to update opponents' data when no opponent is in control", function () {
-
-        beforeEach(function () {
-            $('#user-player-instructions').html('previous value');
-            subject.updateOpponents ([]);
+            expect ($("#user-player-instructions").html ()).toBe ("Wait for Ursula to choose a question...");
         });
 
-        it ("does not change the existing user instructions", function () {
-            expect ($('#user-player-instructions').html ()).toBe ('previous value');
+        it ("displays the opponents' names", function () {
+            expect ($("#opponent-name-234").html ()).toBe ("Ursula");
+            expect ($("#opponent-name-345").html ()).toBe ("Valentina");
+        });
+
+        it ("displays the opponents' scores", function () {
+            expect ($("#opponent-score-234").html ()).toBe ("1500");
+            expect ($("#opponent-score-345").html ()).toBe ("1600");
+        });
+
+        it ("displays the opponents' statuses", function () {
+            expect ($("#opponent-status-234").html ()).toBe ("InControlStatus");
+            expect ($("#opponent-status-345").html ()).toBe ("WaitingForChoiceStatus");
         });
     });
 });
