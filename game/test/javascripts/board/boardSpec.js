@@ -282,7 +282,7 @@ describe ("A Board View, initialized,", function () {
 		beforeEach (function () {
 			var opponents = [
      			{id: 234, name: "Ursula", score: 1500, status: "WaitingForChoiceStatus"},
-    			{id: 345, name: "Valentina", score: 1600, status: "BuzzWinnerStatus"},
+    			{id: 345, name: "Valentina", score: 1600, status: "InControlStatus"},
 			];
 			subject.updateOpponents (opponents)
 		});
@@ -299,7 +299,23 @@ describe ("A Board View, initialized,", function () {
 		
 		it ("displays the opponents' statuses", function () {
 			expect ($("#opponent-status-234").html ()).toBe ("WaitingForChoiceStatus");
-			expect ($("#opponent-status-345").html ()).toBe ("BuzzWinnerStatus");
+			expect ($("#opponent-status-345").html ()).toBe ("InControlStatus");
 		});
+
+        it ("displays the proper instructions for the status", function () {
+            expect ($("#user-player-instructions").html ()).toBe ("Wait for Valentina to choose a question...");
+        });
 	});
+
+    describe ("and directed to update opponents' data when no opponent is in control", function () {
+
+        beforeEach(function () {
+            $('#user-player-instructions').html('previous value');
+            subject.updateOpponents ([]);
+        });
+
+        it ("does not change the existing user instructions", function () {
+            expect ($('#user-player-instructions').html ()).toBe ('previous value');
+        });
+    });
 });

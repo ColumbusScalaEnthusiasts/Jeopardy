@@ -78,7 +78,21 @@ Jeopardy.Board.View = (function () {
 		});
 		$("#questions").html (html);
 	};
-	
+
+    var INSTRUCTIONS = {
+        InControlStatus: "Make your selection.",
+        WaitingForChoiceStatus: "Wait for a question to be chosen..."
+    };
+
+    var inControlMessage = function (opponents) {
+        var inControlOpponent = _.find (opponents, function (opponent) {
+            return opponent.status === 'InControlStatus';
+        });
+        return (inControlOpponent) ?
+            "Wait for " + inControlOpponent.name + " to choose a question..." :
+            undefined;
+    }
+
 	self.initialize = function (controller) {
 		
 	};
@@ -90,12 +104,7 @@ Jeopardy.Board.View = (function () {
 		});
 		updateQuestions (questionRows);
 	};
-	
-	var INSTRUCTIONS = {
-		InControlStatus: "Make your selection.",
-		WaitingForChoiceStatus: "Wait for a question to be chosen..."
-	};
-	
+
 	self.displayUserStatus = function (player) {
 		$('#user-player-name').html (player.name);
 		$('#user-player-score').html (player.score);
@@ -115,6 +124,10 @@ Jeopardy.Board.View = (function () {
 				'</tr>'
 		});
 		$('#board-player-list').html (html);
+        var instructions = inControlMessage(opponents);
+        if (typeof instructions !== 'undefined') {
+            $('#user-player-instructions').html (instructions);
+        }
 	}
 	
 	return self;
