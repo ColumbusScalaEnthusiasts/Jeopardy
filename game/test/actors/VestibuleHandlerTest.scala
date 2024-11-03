@@ -1,24 +1,38 @@
 package actors
 
-import akka.actor.{ActorRef, ActorSystem, Props}
-import akka.testkit.TestActorRef
+import org.apache.pekko
 import org.junit.runner.RunWith
-import org.mockito.Matchers
-import org.mockito.Mockito._
-import org.scalatest.DoNotDiscover
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.path.FunSpec
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito.*
+import org.scalatest.funspec
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import services.board.BoardSelectorService
-import services.routerplugins.{BoardPlugin, GameStarting, PlayerInfo, PlayerList, Ready, SignedIn}
+import services.routerplugins.BoardPlugin
+import services.routerplugins.GameStarting
+import services.routerplugins.PlayerInfo
+import services.routerplugins.PlayerList
+import services.routerplugins.Ready
+import services.routerplugins.SignedIn
 import utils.TestUtils.Recorder
 
-@DoNotDiscover
+import pekko.actor.{ActorRef, ActorSystem}
+import pekko.testkit.{TestActorRef, TestKit}
+import pekko.testkit.TestKitBase
+
 @RunWith(classOf[JUnitRunner])
-class VestibuleHandlerTest extends FunSpec {
-  val system = ActorSystem()
+class VestibuleHandlerTest
+    extends TestKitBase
+    with funspec.PathAnyFunSpecLike
+    with MockitoSugar {
+
+  implicit lazy val system: ActorSystem = ActorSystem(
+    "VestibuleHandlerTest"
+  )
 
   describe("A VestibuleHandler") {
-    val subject = TestActorRef[VestibuleHandler](Props(classOf[VestibuleHandler]))(system)
+    val subject = TestActorRef[VestibuleHandler]
+    // TestActorRef[VestibuleHandler](Props(classOf[VestibuleHandler]))(system)
 
     describe("when Tommy registers via NewConnection") {
       val tommy = Recorder(system)
@@ -43,7 +57,11 @@ class VestibuleHandlerTest extends FunSpec {
           receiveFrontEndMessage(tommy, subject, SignIn("Tommy"))
 
           it("sends player list to Tommy but not Ursula") {
-            assertSentMessages(tommy, PlayerList(List(PlayerInfo(1, "Tommy", SignedIn))), SignedIn(1))
+            assertSentMessages(
+              tommy,
+              PlayerList(List(PlayerInfo(1, "Tommy", SignedIn))),
+              SignedIn(1)
+            )
             assertSentMessages(ursula)
           }
 
@@ -52,10 +70,12 @@ class VestibuleHandlerTest extends FunSpec {
             receiveFrontEndMessage(ursula, subject, SignIn("Ursula"))
 
             it("sends player lists to Tommy and Ursula") {
-              val expectedPlayerList = PlayerList(List(
-                PlayerInfo(1, "Tommy", SignedIn),
-                PlayerInfo(2, "Ursula", SignedIn)
-              ))
+              val expectedPlayerList = PlayerList(
+                List(
+                  PlayerInfo(1, "Tommy", SignedIn),
+                  PlayerInfo(2, "Ursula", SignedIn)
+                )
+              )
               assertSentMessages(tommy, expectedPlayerList)
               assertSentMessages(ursula, expectedPlayerList, SignedIn(2))
             }
@@ -65,10 +85,12 @@ class VestibuleHandlerTest extends FunSpec {
               receiveFrontEndMessage(tommy, subject, ReadyMsg())
 
               it("sends player lists to Tommy and Ursula") {
-                val expectedPlayerList = PlayerList(List(
-                  PlayerInfo(1, "Tommy", Ready),
-                  PlayerInfo(2, "Ursula", SignedIn)
-                ))
+                val expectedPlayerList = PlayerList(
+                  List(
+                    PlayerInfo(1, "Tommy", Ready),
+                    PlayerInfo(2, "Ursula", SignedIn)
+                  )
+                )
                 assertSentMessages(tommy, expectedPlayerList)
                 assertSentMessages(ursula, expectedPlayerList)
               }
@@ -94,29 +116,53 @@ class VestibuleHandlerTest extends FunSpec {
                   describe("and Tommy starts a game") {
                     clearRecorders(tommy, ursula, valentina)
                     val activePlayers = List(
-                      ActivePlayerRecord(2, "Ursula", 0, WaitingForChoiceStatus, ursula),
+                      ActivePlayerRecord(
+                        2,
+                        "Ursula",
+                        0,
+                        WaitingForChoiceStatus,
+                        ursula
+                      ),
                       ActivePlayerRecord(1, "Tommy", 0, InControlStatus, tommy)
                     )
-                    val boardHandler = mock(classOf[ActorRef])
-                    val factory = mock(classOf[JeopardyBoardHandlerFactory])
-                    when(factory.make(Matchers.eq(system), Matchers.any(classOf[BoardSelectorService]),
-                      Matchers.eq(200), Matchers.eq(activePlayers))).thenReturn(boardHandler)
-                    subject.underlyingActor.jeopardyBoardHandlerFactory = factory
+                    val boardHandler = mock[ActorRef]
+                    val factory = mock[JeopardyBoardHandlerFactory]
+                    when(
+                      factory.make(
+                        ArgumentMatchers.eq(system),
+                        ArgumentMatchers.any(classOf[BoardSelectorService]),
+                        ArgumentMatchers.eq(200),
+                        ArgumentMatchers.eq(activePlayers)
+                      )
+                    ).thenReturn(boardHandler)
+                    subject.underlyingActor.jeopardyBoardHandlerFactory =
+                      factory
                     receiveFrontEndMessage(tommy, subject, StartMsg())
 
                     it("sends a slimmed-down player list to Valentina") {
-                      assertSentMessages(valentina, PlayerList(List(PlayerInfo(3, "Valentina", SignedIn))))
+                      assertSentMessages(
+                        valentina,
+                        PlayerList(List(PlayerInfo(3, "Valentina", SignedIn)))
+                      )
                     }
 
-                    val verifyMessages = { player: TestActorRef[Recorder] =>
+                    val verifyMessages = { (player: TestActorRef[Recorder]) =>
                       val recording = player.underlyingActor.getRecording
                       assert(recording(0) === GameStarting())
-                      val installationMsg = recording(1).asInstanceOf[InstallPluginAndBackEnd]
-                      assert(installationMsg.plugin.getClass() === classOf[BoardPlugin])
-                      assert(installationMsg.backEndHandlerOpt.get eq boardHandler)
+                      val installationMsg =
+                        recording(1).asInstanceOf[InstallPluginAndBackEnd]
+                      assert(
+                        installationMsg.plugin
+                          .getClass() === classOf[BoardPlugin]
+                      )
+                      assert(
+                        installationMsg.backEndHandlerOpt.get eq boardHandler
+                      )
                     }
 
-                    it("sends GameStarting and installation messages to Tommy and Ursula") {
+                    it(
+                      "sends GameStarting and installation messages to Tommy and Ursula"
+                    ) {
                       verifyMessages(tommy)
                       verifyMessages(ursula)
                     }
@@ -131,7 +177,10 @@ class VestibuleHandlerTest extends FunSpec {
 
               it("sends player list to Ursula but not Tommy") {
                 assertSentMessages(tommy)
-                assertSentMessages(ursula, PlayerList(List(PlayerInfo(2, "Ursula", SignedIn))))
+                assertSentMessages(
+                  ursula,
+                  PlayerList(List(PlayerInfo(2, "Ursula", SignedIn)))
+                )
               }
             }
           }
@@ -144,7 +193,7 @@ class VestibuleHandlerTest extends FunSpec {
     val factory = new JeopardyBoardHandlerFactory()
 
     describe("when instructed to make a JeopardyBoardHandler") {
-      val boardSelector = mock(classOf[BoardSelectorService])
+      val boardSelector = mock[BoardSelectorService]
       val result = factory.make(system, boardSelector, 0, Nil)
 
       it("does so, as far as anybody can tell") {
@@ -153,19 +202,26 @@ class VestibuleHandlerTest extends FunSpec {
     }
   }
 
-  system.shutdown()
+  TestKit.shutdownActorSystem(system)
 
-  private def receiveFrontEndMessage(sender: TestActorRef[Recorder], recipient: ActorRef, msg: Any) {
+  private def receiveFrontEndMessage(
+      sender: TestActorRef[Recorder],
+      recipient: ActorRef,
+      msg: Any
+  ): Unit = {
     sender.underlyingActor.relay(recipient, msg)
   }
 
-  private def clearRecorders(recorders: TestActorRef[Recorder]*) {
+  private def clearRecorders(recorders: TestActorRef[Recorder]*): Unit = {
     recorders.foreach {
       _.underlyingActor.erase()
     }
   }
 
-  private def assertSentMessages(recipient: TestActorRef[Recorder], msgs: Any*) {
+  private def assertSentMessages(
+      recipient: TestActorRef[Recorder],
+      msgs: Any*
+  ): Unit = {
     val recorder = recipient.underlyingActor
     assert(recorder.getRecording === msgs)
   }

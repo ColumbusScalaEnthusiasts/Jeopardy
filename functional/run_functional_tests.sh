@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Usage: run_functional_test <dir> <seconds> <url>
 # where:
@@ -23,7 +23,7 @@ wait_for_server () {
 }
 
 cd "$1"
-activator stage
+sbt game/stage
 game/target/universal/stage/bin/game >functional_test_log.txt &
 wait_for_server "$2" "$3"
 if [ $? -ne 0 ] ; then
@@ -31,7 +31,7 @@ if [ $? -ne 0 ] ; then
 	kill -9 $server_pid
 	exit -1
 fi
-activator functional/test
+sbt functional/test
 exit_code=$?
 get_server_pid "functional_test_log.txt"
 kill $server_pid

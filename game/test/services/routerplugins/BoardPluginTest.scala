@@ -1,45 +1,57 @@
 package services.routerplugins
 
-import org.junit.runner.RunWith
-import org.scalatest.DoNotDiscover
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.path.FunSpec
+import actors.ActivePlayerRecord
+import actors.Buzz
+import actors.ChooseQuestion
 import actors.Relay
-import akka.actor.ActorSystem
+import actors.WaitingForChoiceStatus
+import org.apache.pekko
+import org.junit.runner.RunWith
+import org.scalatest.funspec
+import org.scalatestplus.junit.JUnitRunner
 import play.api.libs.json.Json
 import utils.TestUtils.Recorder
-import actors.WaitingForChoiceStatus
-import actors.ActivePlayerRecord
-import actors.ChooseQuestion
-import actors.Buzz
 
-@DoNotDiscover
-@RunWith (classOf[JUnitRunner])
-class BoardPluginTest extends FunSpec {
-  describe ("A BoardPlugin, installed with mocks") {
-    val system = ActorSystem ()
-    val backEndHandler = Recorder (system)
-    val router = Recorder (system)
-    val outputSocket = Recorder (system)
-    val subject = new BoardPlugin ()
-    subject.install (backEndHandler, router, outputSocket)
+import pekko.testkit.TestKit
+import pekko.actor.ActorSystem
 
-    describe ("and sent a BoardStatus message from the back end") {
-      val boardStatus = BoardStatus (
-        (1 to 3).map {index =>
-          ActivePlayerRecord (index, s"Player ${index}", index * 1000, WaitingForChoiceStatus, null)
+@RunWith(classOf[JUnitRunner])
+class BoardPluginTest
+    extends TestKit(ActorSystem("BoardPluginTest"))
+    with funspec.PathAnyFunSpecLike {
+
+  describe("A BoardPlugin, installed with mocks") {
+    val backEndHandler = Recorder(system)
+    val router = Recorder(system)
+    val outputSocket = Recorder(system)
+    val subject = new BoardPlugin()
+    subject.install(backEndHandler, router, outputSocket)
+
+    describe("and sent a BoardStatus message from the back end") {
+      val boardStatus = BoardStatus(
+        (1 to 3).map { index =>
+          ActivePlayerRecord(
+            index,
+            s"Player ${index}",
+            index * 1000,
+            WaitingForChoiceStatus,
+            null
+          )
         }.toList,
-        (1 to 6).map {column =>
-          BoardColumn (Category (100 + column, s"Category ${column}"), (1 to 5).map {row =>
-            Question ((row * 6) + column, row * 200)
-          }.toList)
+        (1 to 6).map { column =>
+          BoardColumn(
+            Category(100 + column, s"Category ${column}"),
+            (1 to 5).map { row =>
+              Question((row * 6) + column, row * 200)
+            }.toList
+          )
         }.toList
       )
       router.underlyingActor.erase()
       subject.handleOutgoingMessage(boardStatus)
 
-      it ("translates it correctly to JSON for the front end") {
-        val msg = Json.parse ("""
+      it("translates it correctly to JSON for the front end") {
+        val msg = Json.parse("""
 {
   "type": "boardStatus",
   "data": {
@@ -95,17 +107,19 @@ class BoardPluginTest extends FunSpec {
   }
 }
 """)
-        assert (router.underlyingActor.getRecording === List(Relay (msg, outputSocket)))
+        assert(
+          router.underlyingActor.getRecording === List(Relay(msg, outputSocket))
+        )
       }
     }
 
-    describe ("and sent an AskQuestion message from the back end") {
-      val askQuestion = AskQuestion (34L, "How high is up?")
+    describe("and sent an AskQuestion message from the back end") {
+      val askQuestion = AskQuestion(34L, "How high is up?")
       router.underlyingActor.erase()
       subject.handleOutgoingMessage(askQuestion)
 
-      it ("translates it correctly to JSON for the front end") {
-        val msg = Json.parse ("""
+      it("translates it correctly to JSON for the front end") {
+        val msg = Json.parse("""
 {
   "type": "askQuestion",
   "data": {
@@ -113,17 +127,19 @@ class BoardPluginTest extends FunSpec {
   }
 }
 """)
-        assert (router.underlyingActor.getRecording === List(Relay (msg, outputSocket)))
+        assert(
+          router.underlyingActor.getRecording === List(Relay(msg, outputSocket))
+        )
       }
     }
 
-    describe ("and sent a QuestionClaimed message from the back end") {
-      val questionClaimed = QuestionClaimed (1234L)
+    describe("and sent a QuestionClaimed message from the back end") {
+      val questionClaimed = QuestionClaimed(1234L)
       router.underlyingActor.erase()
       subject.handleOutgoingMessage(questionClaimed)
 
-      it ("translates it correctly to JSON for the front end") {
-        val msg = Json.parse ("""
+      it("translates it correctly to JSON for the front end") {
+        val msg = Json.parse("""
 {
   "type": "questionClaimed",
   "data": {
@@ -131,28 +147,32 @@ class BoardPluginTest extends FunSpec {
   }
 }
 """)
-        assert (router.underlyingActor.getRecording === List(Relay (msg, outputSocket)))
+        assert(
+          router.underlyingActor.getRecording === List(Relay(msg, outputSocket))
+        )
       }
     }
 
-    describe ("and sent a BuzzWinner message from the back end") {
-      val buzzWinner = BuzzWinner ()
+    describe("and sent a BuzzWinner message from the back end") {
+      val buzzWinner = BuzzWinner()
       router.underlyingActor.erase()
       subject.handleOutgoingMessage(buzzWinner)
 
-      it ("translates it correctly to JSON for the front end") {
-        val msg = Json.parse ("""
+      it("translates it correctly to JSON for the front end") {
+        val msg = Json.parse("""
 {
   "type": "buzzWinner",
   "data": {}
 }
 """)
-        assert (router.underlyingActor.getRecording === List(Relay (msg, outputSocket)))
+        assert(
+          router.underlyingActor.getRecording === List(Relay(msg, outputSocket))
+        )
       }
     }
 
-    describe ("and sent a ChooseQuestion message from the front end") {
-      val data = Json.parse ("""
+    describe("and sent a ChooseQuestion message from the front end") {
+      val data = Json.parse("""
 {
   "id": 29
 }
@@ -160,23 +180,31 @@ class BoardPluginTest extends FunSpec {
       router.underlyingActor.erase()
       subject.handleIncomingMessage("chooseQuestion", data)
 
-      it ("translates it correctly from JSON for the back end") {
-        val msg = ChooseQuestion (29L)
-        assert (router.underlyingActor.getRecording === List (Relay (msg, backEndHandler)))
+      it("translates it correctly from JSON for the back end") {
+        val msg = ChooseQuestion(29L)
+        assert(
+          router.underlyingActor.getRecording === List(
+            Relay(msg, backEndHandler)
+          )
+        )
       }
     }
 
-    describe ("and sent a Buzz message from the front end") {
-      val data = Json.parse ("{}")
+    describe("and sent a Buzz message from the front end") {
+      val data = Json.parse("{}")
       router.underlyingActor.erase()
       subject.handleIncomingMessage("buzz", data)
 
-      it ("translates it correctly from JSON for the back end") {
-        val msg = Buzz ()
-        assert (router.underlyingActor.getRecording === List (Relay (msg, backEndHandler)))
+      it("translates it correctly from JSON for the back end") {
+        val msg = Buzz()
+        assert(
+          router.underlyingActor.getRecording === List(
+            Relay(msg, backEndHandler)
+          )
+        )
       }
     }
 
-    system.shutdown ()
+    system.terminate()
   }
 }

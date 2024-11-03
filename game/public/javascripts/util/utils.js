@@ -1,53 +1,52 @@
-var Jeopardy = Jeopardy ? Jeopardy : {};
+/*eslint no-unused-vars: ["error", { "caughtErrors": "all", "caughtErrorsIgnorePattern": "^ignore" }]*/
 
-Jeopardy.Utils = function () {
+let factory = null;
 
-	var self = {};
-	
-	// for internal use
-	self.makeWebSocket = function (url) {
-		return new WebSocket (url);
-	};
-	
-	self.websocket = function (url, params) {
-		var ws = {};
-		
-		var socket = self.makeWebSocket (url);
-				
-		var onMessage = function (event) {
-			var msg = null;
-			try {
-				msg = JSON.parse (event.data);
-			}
-			catch (error) {
-				console.log ('Discarding non-JSON WebSocket message: "' + event.data + '"');
-				return;
-			}
-			var type = msg.type;
-			var data = msg.data;
-			var handler = params.events[type];
-			if (!handler) {
-				console.log ('Discarding unexpected WebSocket message: "' + event.data + '"');
-				return;
-			}
-			handler (data);
-		}
-		
-		socket.onopen = params.open;
-		socket.onclose = params.close;
-		if (params.events) {socket.onmessage = onMessage;}
-		
-		ws.send = function (type, data) {
-			var msg = JSON.stringify ({type: type, data: data});
-			socket.send (msg)
-		};
-		
-		ws.replaceEvents = function (events) {
-			params.events = events;
-		};
-		
-		return ws;
-	};
+export default class Utils {
+  constructor(websocketFactory) {
+    if (websocketFactory === undefined) {
+      factory = (url) => new WebSocket(url);
+    } else {
+      factory = websocketFactory;
+    }
+  }
 
-	return self;
-} ();
+  websocket(url, params) {
+    const onMessage = (event) => {
+      let msg = null;
+      try {
+        msg = JSON.parse(event.data);
+      }
+      catch (ignore) {
+        console.log(`Discarding non-JSON WebSocket message: "${event.data}"`);
+        return;
+      }
+      const { type } = msg;
+      const { data } = msg;
+      const handler = params.events[type];
+      if (!handler) {
+        console.log(`Discarding unexpected WebSocket message: "${event.data}"`);
+        return;
+      }
+      handler(data);
+    };
+
+    const socket = factory(url);
+    const ws = {};
+
+    socket.onopen = params.open;
+    socket.onclose = params.close;
+    if (params.events) { socket.onmessage = onMessage; }
+
+    ws.send = (type, data) => {
+      const msg = JSON.stringify({ type, data });
+      socket.send(msg);
+    };
+
+    ws.replaceEvents = (events) => {
+      params.events = events;
+    };
+
+    return ws;
+  };
+}

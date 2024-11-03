@@ -2,11 +2,11 @@ package specs
 
 import org.openqa.selenium.WebDriver
 
-case class ContextPackage (
-  driver: WebDriver,
-  baseUrl: String
+case class ContextPackage(
+    driver: WebDriver,
+    baseUrl: String
 ) {
-  def close () {
-    driver.close ()
+  def close(): Unit = {
+    driver.close()
   }
 }

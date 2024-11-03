@@ -1,60 +1,76 @@
 package frontend
 
-import org.scalatest.DoNotDiscover
-import org.scalatest.path.FunSpec
+import org.apache.pekko
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.selenium.WebBrowser
-import org.scalatest.selenium.HtmlUnit
-import java.io.{FileNotFoundException, File}
-import org.scalatest.selenium.Firefox
-import org.openqa.selenium.firefox.FirefoxDriver
-import org.openqa.selenium.WebDriver
 import org.openqa.selenium.By
-import scala.collection.JavaConverters._
-import org.scalatest.concurrent.Eventually._
+import org.openqa.selenium.WebDriver
+import org.scalatest.concurrent.Eventually.*
+import org.scalatest.funspec
+import org.scalatestplus.junit.JUnitRunner
 
-@DoNotDiscover
+import java.io.File
+import java.io.FileNotFoundException
+import scala.jdk.CollectionConverters.*
+
+import pekko.actor.ActorSystem
+import pekko.testkit.TestKit
+
 @RunWith(classOf[JUnitRunner])
-class JasmineTest extends FunSpec with Firefox {
+class JasmineTest
+    extends TestKit(ActorSystem("JasmineTest"))
+    with funspec.PathAnyFunSpecLike
+    with FirefoxHeadless {
 
   private val scraper = new Jasmine131Scraper(webDriver)
 
   try {
+    setCaptureDir(s"${System.getProperty("user.dir")}/testScreenshots")
     describe("When SpecRunner.html is loaded") {
       val fileUrl = makeFileUrl
       go to fileUrl
-      val (specs, failures) = eventually {
-        scraper.scrapeResult()
-      }
 
       it("the tests should exist and all pass") {
+        val (specs, failures) = eventually {
+          scraper.scrapeResult()
+        }
+
         (specs, failures) match {
           case (0, _) => fail("No Jasmine tests ran")
           case (_, 0) => // success!
-          case (p, f) => fail(s"${f} of ${p} Jasmine test${if (p > 1) "s" else ""} failed")
+          case (p, f) =>
+            withScreenshot {
+              fail(s"${f} of ${p} Jasmine test${if (p > 1) "s" else ""} failed")
+            }
         }
       }
     }
-  }
-  finally {
+  } finally {
     close()
   }
+
+  TestKit.shutdownActorSystem(system)
 
   def makeFileUrl: String = {
     val currentDirectory = System.getProperty("user.dir")
     val specRunnerLocation = "game/test/javascripts/SpecRunner.html"
     var commonString = specRunnerLocation
-    while (!commonString.isEmpty && !currentDirectory.endsWith (commonString)) {
-      commonString = commonString.substring (0, commonString.length () - 1)
+    while (!commonString.isEmpty && !currentDirectory.endsWith(commonString)) {
+      commonString = commonString.substring(0, commonString.length() - 1)
     }
     if (commonString.isEmpty) {
-      throw new IllegalStateException (s"Can't find SpecRunner.html in '${specRunnerLocation}' from '${currentDirectory}'")
+      throw new IllegalStateException(
+        s"Can't find SpecRunner.html in '${specRunnerLocation}' from '${currentDirectory}'"
+      )
     }
-    val prefix = currentDirectory.substring (0, currentDirectory.length () - commonString.length ())
+    val prefix = currentDirectory.substring(
+      0,
+      currentDirectory.length() - commonString.length()
+    )
     val specRunnerPath = s"${prefix}/${specRunnerLocation}"
-    if (!new File (specRunnerPath).isFile ()) {
-      throw new FileNotFoundException (s"Failed to find SpecRunner.html at ${specRunnerPath}")
+    if (!new File(specRunnerPath).isFile()) {
+      throw new FileNotFoundException(
+        s"Failed to find SpecRunner.html at ${specRunnerPath}"
+      )
     }
     return s"file:${specRunnerPath}"
   }
@@ -63,10 +79,11 @@ class JasmineTest extends FunSpec with Firefox {
     def scrapeResult(): (Int, Int)
 
     protected def xpathQuery(query: String): List[String] = {
-      val elements = driver.findElements(By.xpath(query)).asScala.toList
-      elements.map {
-        _.getText
-      }
+      val elements = driver
+        .findElements(By.xpath(query))
+        .asScala
+        .toList
+      elements.map(_.getText)
     }
   }
 
@@ -77,45 +94,57 @@ class JasmineTest extends FunSpec with Firefox {
       (failureCountsOpt, successCountsOpt) match {
         case (None, Some(x)) => x
         case (Some(x), None) => x
-        case _ => fail("XPath search for summary message failed");
+        case _               => fail("XPath search for summary message failed");
       }
     }
 
     private def findFailureCounts(): Option[(Int, Int)] = {
-      val specsTexts = xpathQuery( """//span[@class="resultsMenu bar"]/a[1]""")
-      val failuresTexts = xpathQuery( """//span[@class="resultsMenu bar"]/a[2]""")
+      val specsTexts = xpathQuery("""//span[@class="resultsMenu bar"]/a[1]""")
+      val failuresTexts = xpathQuery(
+        """//span[@class="resultsMenu bar"]/a[2]"""
+      )
       (specsTexts, failuresTexts) match {
-        case (specs :: ss, failures :: fs) => Some((parseFailSpecs(specs), parseFailFailures(failures)))
+        case (specs :: ss, failures :: fs) =>
+          Some((parseFailSpecs(specs), parseFailFailures(failures)))
         case _ => None
       }
     }
 
     private def findSuccessCounts(): Option[(Int, Int)] = {
-      val passingTexts = xpathQuery( """//span[@class="passingAlert bar"]""")
+      val passingTexts = xpathQuery("""//span[@class="passingAlert bar"]""")
       passingTexts match {
         case (passingText :: ps) => Some((parsePassingSpecs(passingText), 0))
-        case _ => None
+        case _                   => None
       }
     }
 
     private def parseFailSpecs(specs: String): Int = {
       """(\d+) specs""".r.findFirstMatchIn(specs) match {
         case Some(m) => m.group(1).toInt
-        case None => throw new IllegalStateException("Expected \"<number> specs\"; got \"" + specs + "\"")
+        case None =>
+          throw new IllegalStateException(
+            "Expected \"<number> specs\"; got \"" + specs + "\""
+          )
       }
     }
 
     private def parseFailFailures(failing: String): Int = {
       """(\d+) failing""".r.findFirstMatchIn(failing) match {
         case Some(m) => m.group(1).toInt
-        case None => throw new IllegalStateException("Expected \"<number> failing\"; got \"" + failing + "\"")
+        case None =>
+          throw new IllegalStateException(
+            "Expected \"<number> failing\"; got \"" + failing + "\""
+          )
       }
     }
 
     private def parsePassingSpecs(specs: String): Int = {
       """Passing (\d+) specs""".r.findFirstMatchIn(specs) match {
         case Some(m) => m.group(1).toInt
-        case None => throw new IllegalStateException("Expected \"Passing <number> specs\"; got \"" + specs + "\"")
+        case None =>
+          throw new IllegalStateException(
+            "Expected \"Passing <number> specs\"; got \"" + specs + "\""
+          )
       }
     }
   }
@@ -128,8 +157,8 @@ class JasmineTest extends FunSpec with Firefox {
     }
 
     def scrapeMessage: String = {
-      val passTexts = xpathQuery( """//span[@class="bar passed"]""")
-      val failTexts = xpathQuery( """//span[@class="bar failed"]""")
+      val passTexts = xpathQuery("""//span[@class="bar passed"]""")
+      val failTexts = xpathQuery("""//span[@class="bar failed"]""")
       (passTexts, failTexts) match {
         case (Nil, x :: _) => x
         case (x :: _, Nil) => x
@@ -140,13 +169,14 @@ class JasmineTest extends FunSpec with Firefox {
     def parseMessage(message: String): (Int, Int) = {
       val regex = """(\d+?) specs, (\d+?) failures?""".r
       try {
-        val regex(specs, failures) = message
+        val regex(specs, failures) =
+          message: @unchecked // since failure should just fail test
         return (specs.toInt, failures.toInt)
-      }
-      catch {
-        case e: Exception => fail(s"Message '${message}' didn't match specs/failures regex"); (0, 0)
+      } catch {
+        case e: Exception =>
+          fail(s"Message '${message}' didn't match specs/failures regex");
+          (0, 0)
       }
     }
   }
-
 }

@@ -2,14 +2,22 @@ import Dependencies._
 
 name := """Jeopardy"""
 
-version in ThisBuild := "0.1-SNAPSHOT"
+ThisBuild / version := "0.1-SNAPSHOT"
 
-scalaVersion in ThisBuild := "2.11.2"
+ThisBuild / scalaVersion := "3.6.1"
 
 lazy val game = (project in file("game")
-  settings (libraryDependencies ++= gameDependencies)
-  ).enablePlugins(PlayScala)
+  settings (libraryDependencies ++= (guice +: gameDependencies)))
+  .enablePlugins(PlayScala)
 
 lazy val functional = (project in file("functional")
-  settings (libraryDependencies ++= functionalDependencies)
+  settings (libraryDependencies ++= functionalDependencies))
+
+ThisBuild / scalacOptions += "-Wunused:all"
+inThisBuild(
+  List(
+    scalaVersion := "3.6.1",
+    semanticdbEnabled := true,
+    semanticdbVersion := scalafixSemanticdb.revision
   )
+)

@@ -1,27 +1,47 @@
 package controllers.vestibule
 
-import scala.concurrent.duration._
-import actors._
-import akka.actor.ActorRef
-import akka.actor.Props
-import play.api.Play.current
+import actors.*
+import org.apache.pekko
 import play.api.libs.json.JsValue
-import play.api.mvc._
-import play.libs.Akka
+import play.api.libs.streams.ActorFlow
+import play.api.mvc.*
 
+import javax.inject.*
+
+import pekko.actor.*
+
+/*
 trait Vestibule {
   this: Controller =>
-    
-  var vestibuleHandler = VestibuleHandler (Akka.system)
-  
+  val system: ActorSystem
+
+  var vestibuleHandler = VestibuleHandler { system }
+
   def index = Action {
-    Ok(views.html.page ())
+    Ok(views.html.page())
   }
 
   // TODO: Dunno how to unit test this
-  def wsinit = WebSocket.acceptWithActor[JsValue, JsValue] {request => out => 
-    Props (new PlayerSocketRouter (vestibuleHandler, out))
+  def wsinit = WebSocket.acceptWithActor[JsValue, JsValue] { request => out =>
+    Props(new PlayerSocketRouter(vestibuleHandler, out))
   }
 }
+ */
 
-object Vestibule extends Controller with Vestibule
+class Vestibule @Inject() (
+    val controllerComponents: ControllerComponents,
+    implicit val actorSystem: ActorSystem
+) extends BaseController {
+  def index() = Action {
+    Ok(views.html.page())
+  }
+
+  var vestibuleHandler = VestibuleHandler { actorSystem }
+
+  // TODO: Dunno how to unit test this
+  def wsinit() = WebSocket.accept[JsValue, JsValue] { request =>
+    ActorFlow.actorRef { out =>
+      Props(new PlayerSocketRouter(vestibuleHandler, out))
+    }
+  }
+}

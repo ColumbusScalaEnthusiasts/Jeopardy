@@ -17,6 +17,7 @@
 /**/.cache
 /**/*.swp
 /**/node_modules
+/**/.bloop
 /Jeopardy/phantomjsdriver.log
 .DS_Store
 /bin/
@@ -24,3 +25,10 @@ test-results.xml
 /**/*.log
 /**/*_log.txt
 webdriver.*.png
+.direnv
+.metals
+**/project/project
+**/project/metals.sbt
+TESTS*.xml
+.bsp
+**/testScreenshots

@@ -1,16 +1,16 @@
 package pages
-
-import org.openqa.selenium.WebDriver
-import specs.ContextPackage
 import org.openqa.selenium.By
-import org.openqa.selenium.WebElement
-import org.openqa.selenium.StaleElementReferenceException
-import scala.collection.JavaConverters._
 import org.openqa.selenium.SearchContext
+import org.openqa.selenium.StaleElementReferenceException
+import org.openqa.selenium.WebDriver
+import org.openqa.selenium.WebElement
+import specs.ContextPackage
+
+import scala.collection.JavaConverters.*
 
 object Page {
-  def apply[T <: Page] (cls: Class[T])(implicit context: ContextPackage): T = {
-    val page = cls.newInstance ().asInstanceOf[T]
+  def apply[T <: Page](cls: Class[T])(implicit context: ContextPackage): T = {
+    val page = cls.newInstance().asInstanceOf[T]
     page.context = context
     return page
   }
@@ -18,69 +18,84 @@ object Page {
 
 trait Page {
   private var context: ContextPackage = null
-  implicit protected def driver = context.driver
+  implicit protected def driver: WebDriver = context.driver
   protected def baseUrl = context.baseUrl
 
-  def isDisplayed: Boolean = throw new UnsupportedOperationException ()
+  def isDisplayed: Boolean = throw new UnsupportedOperationException()
 
-  def click (context: SearchContext, selector: By): Unit = {
-    findElement (context, selector) {element => element.click ()}
+  def click(context: SearchContext, selector: By): Unit = {
+    findElement(context, selector) { element => element.click() }
   }
 
-  def click (selector: By): Unit = click (driver, selector)
+  def click(selector: By): Unit = click(driver, selector)
 
-  def sendKeys (context: SearchContext, selector: By, keys: String): Unit = {
-    findElement (context, selector) {element => element.sendKeys (keys)}
+  def sendKeys(context: SearchContext, selector: By, keys: String): Unit = {
+    findElement(context, selector) { element => element.sendKeys(keys) }
   }
 
-  def sendKeys (selector: By, keys: String): Unit = sendKeys (driver, selector, keys)
+  def sendKeys(selector: By, keys: String): Unit =
+    sendKeys(driver, selector, keys)
 
-  def text (context: SearchContext, selector: By): String = {
-    findElement (context, selector) {element => element.getText ()}
+  def text(context: SearchContext, selector: By): String = {
+    findElement(context, selector) { element => element.getText() }
   }
 
-  def text (selector: By): String = text (driver, selector)
+  def text(selector: By): String = text(driver, selector)
 
-  def isDisplayed (context: SearchContext, selector: By): Boolean = {
-    findElement (context, selector) {element => element.isDisplayed ()}
+  def isDisplayed(context: SearchContext, selector: By): Boolean = {
+    findElement(context, selector) { element => element.isDisplayed() }
   }
 
-  def isDisplayed (selector: By): Boolean = isDisplayed (driver, selector)
+  def isDisplayed(selector: By): Boolean = isDisplayed(driver, selector)
 
-  def getAttribute (context: SearchContext, selector: By, name: String): String = {
-    findElement (context, selector) {element => element.getAttribute (name)}
+  def getAttribute(
+      context: SearchContext,
+      selector: By,
+      name: String
+  ): String = {
+    findElement(context, selector) { element => element.getAttribute(name) }
   }
 
-  def getAttribute (selector: By, name: String): String = getAttribute (driver, selector, name)
+  def getAttribute(selector: By, name: String): String =
+    getAttribute(driver, selector, name)
 
-  protected def findElement[T] (context: SearchContext, selector: By) (action: WebElement => T): T = {
-    keepTrying ((context, selector)){case (c, s) => {
-      val objective = c.findElement (s)
-      action (objective)
-    }}
-  }
-
-  protected def findElement[T] (selector: By) (action: WebElement => T): T = {
-    findElement (driver, selector) (action)
-  }
-
-  protected def findElements[T] (context: SearchContext, selector: By) (action: List[WebElement] => T): T = {
-    keepTrying ((context, selector)){case (c, s) => {
-      val objectives = c.findElements (s).asScala.toList
-      action (objectives)
-    }}
-  }
-
-  protected def findElements[T] (selector: By) (action: List[WebElement] => T): T = {
-    findElements (driver, selector) (action)
-  }
-
-  private def keepTrying[P, Q] (x: P)(f: P => Q): Q = {
-    try {
-      f (x)
+  protected def findElement[T](context: SearchContext, selector: By)(
+      action: WebElement => T
+  ): T = {
+    keepTrying((context, selector)) {
+      case (c, s) => {
+        val objective = c.findElement(s)
+        action(objective)
+      }
     }
-    catch {
-      case e: StaleElementReferenceException => keepTrying (x)(f)
+  }
+
+  protected def findElement[T](selector: By)(action: WebElement => T): T = {
+    findElement(driver, selector)(action)
+  }
+
+  protected def findElements[T](context: SearchContext, selector: By)(
+      action: List[WebElement] => T
+  ): T = {
+    keepTrying((context, selector)) {
+      case (c, s) => {
+        val objectives = c.findElements(s).asScala.toList
+        action(objectives)
+      }
+    }
+  }
+
+  protected def findElements[T](
+      selector: By
+  )(action: List[WebElement] => T): T = {
+    findElements(driver, selector)(action)
+  }
+
+  private def keepTrying[P, Q](x: P)(f: P => Q): Q = {
+    try {
+      f(x)
+    } catch {
+      case e: StaleElementReferenceException => keepTrying(x)(f)
     }
   }
 }

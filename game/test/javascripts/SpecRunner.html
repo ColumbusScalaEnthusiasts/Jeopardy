@@ -11,17 +11,21 @@
 
   <!-- include third-party library files here... -->
   <script type="text/javascript" src="../../public/javascripts/jquery-1.8.2.min.js"></script>
-  <script type="text/javascript" src="../../public/javascripts/underscore-1.6.0.min.js"></script>
 
   <!-- include source files here... -->
+  <!--
   <script type="text/javascript" src="../../public/javascripts/util/utils.js"></script>
   <script type="text/javascript" src="../../public/javascripts/vestibule/vestibule.js"></script>
   <script type="text/javascript" src="../../public/javascripts/board/board.js"></script>
+  -->
+
 
   <!-- include spec files here... -->
-  <script type="text/javascript" src="util/utilsSpec.js"></script>
-  <script type="text/javascript" src="vestibule/vestibuleSpec.js"></script>
-  <script type="text/javascript" src="board/boardSpec.js"></script>
+  <script type="module" src="util/utilsSpec.js"></script>
+  <script type="module" src="vestibule/viewSpec.js"></script>
+  <script type="module" src="vestibule/controllerSpec.js"></script>
+  <script type="module" src="board/controllerSpec.js"></script>
+  <script type="module" src="board/viewSpec.js"></script>
 
   <script type="text/javascript">
     (function() {

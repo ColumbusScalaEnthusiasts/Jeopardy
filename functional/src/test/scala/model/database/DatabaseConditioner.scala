@@ -1,11 +1,7 @@
 package model.database
 
 class DatabaseConditioner {
-  def conditionForTest() {
-    
-  }
+  def conditionForTest(): Unit = {}
 
-  def uncondition() {
-    
-  }
+  def uncondition(): Unit = {}
 }
